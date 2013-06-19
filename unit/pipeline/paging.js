@@ -22,24 +22,6 @@ var pagingPipes = AeroGear.Pipeline([
                 nextIdentifier: "AG-Links-Next"
             }
         }
-    },
-    {
-        name: "twitter",
-        settings: {
-            baseURL: "http://search.twitter.com/",
-            endpoint: "search.json",
-            pageConfig: {
-                metadataLocation: "body",
-                previousIdentifier: "previous_page",
-                nextIdentifier: "next_page",
-                parameterProvider: function( body ) {
-                    return {
-                        previous_page: body.previous_page ? body.previous_page.substr( 1 ) : null,
-                        next_page: body.next_page ? body.next_page.substr( 1 ) : null
-                    };
-                }
-            }
-        }
     }
 ]);
 
