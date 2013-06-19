@@ -95,33 +95,4 @@ asyncTest( "AeroGear Controller - Header", function() {
     });
 });
 
-asyncTest( "Twitter - body paging", function() {
-    expect( 3 );
-
-    pagingPipes.pipes.twitter.read({
-        paging: {
-            page: 2,
-            rpp: 2
-        },
-        query: {
-            q: "aerogear"
-        },
-        jsonp: true,
-        success: function( data, textStatus, jqXHR ) {
-            data.previous({
-                success: function( data ) {
-                    ok( true, "Read success from previous call" );
-                    data.next({
-                        success: function() {
-                            ok( true, "Read success from next call" );
-                            start();
-                        }
-                    });
-                }
-            });
-            ok( true, "Read success from endpoint with paging" );
-        }
-    });
-});
-
 })( jQuery );
