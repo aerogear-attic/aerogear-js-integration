@@ -22,6 +22,33 @@ var pagingPipes = AeroGear.Pipeline([
                 nextIdentifier: "AG-Links-Next"
             }
         }
+    },
+    {
+        name: "github",
+        settings: {
+            baseURL: "https://api.github.com/",
+            endpoint: "orgs/aerogear/repos",
+            pageConfig: {
+                metadataLocation: "body",
+                parameterProvider: function( body ) {
+                    var previous = null, next = null,
+                        links = body.meta.Link;
+
+                    for ( var link in links ) {
+                        if ( links[ link ][ 1 ].rel === "next" ) {
+                            next = links[ link ][ 0 ];
+                        }
+                        if ( links[ link ][ 1 ].rel === "prev" ) {
+                            previous = links[ link ][ 0 ];
+                        }
+                    }
+                    return {
+                        previous: previous,
+                        next: next
+                    };
+                }
+            }
+        }
     }
 ]);
 
@@ -73,6 +100,28 @@ asyncTest( "AeroGear Controller - Header", function() {
                 }
             });
             ok( true, "Read success from endpoint with paging" );
+        }
+    });
+});
+
+asyncTest( "Github - body paging with JSONP", function() {
+    expect( 3 );
+
+    pagingPipes.pipes.github.read({
+        jsonp: true,
+        success: function( data, textStatus, jqXHR ) {
+            data.next({
+                success: function( data ) {
+                    ok( true, "Read success from next call" );
+                    data.previous({
+                        success: function() {
+                            ok( true, "Read success from previous call" );
+                            start();
+                        }
+                    });
+                }
+            });
+            ok( true, "Read success from endpoint with paging using JSONP" );
         }
     });
 });
