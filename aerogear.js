@@ -1,4 +1,4 @@
-/*! AeroGear JavaScript Library - v1.1.2 - 2013-06-28
+/*! AeroGear JavaScript Library - v1.1.2 - 2013-07-08
 * https://github.com/aerogear/aerogear-js
 * JBoss, Home of Professional Open Source
 * Copyright Red Hat, Inc., and individual contributors
@@ -2622,6 +2622,29 @@ AeroGear.Auth.adapters.Rest.prototype.logout = function( options ) {
             this.removeChannel( channels[ i ] );
             bus.unregisterHandler( channels[ i ].address, channels[ i ].callback );
         }
+    };
+
+    /**
+        Send a message to a particular channel
+        @param {String} channel - the channel to which to send the message
+        @param {String|Object} [message=""] - the message object to send
+        @example
+        // Send an empty message to a channel
+        notifier.clients.client1.send( "test.address" );
+
+        // Send a "Hello" message to a channel
+        notifier.clients.client1.send( "test.address", "Hello" );
+
+        // Send a "Hello" message as an object
+        notifier.clients.client1.send( "test.address", { "message": "Hello" } );
+
+     */
+    AeroGear.Notifier.adapters.vertx.prototype.send = function( channel, message ) {
+        var bus = this.getBus();
+
+        message = message || "";
+
+        bus.send( channel, message );
     };
 
 })( AeroGear, vertx );
