@@ -6,8 +6,22 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
 
+        connect: {
+            server: {
+                options: {
+                    port: 8000,
+                    hostname: 'localhost'
+                }
+            }
+        },
         qunit: {
-            files: ['tests/integration/pipeline/**/*.html']
+            files: [],
+            options: {
+                urls: [
+                    'http://localhost:<%= connect.server.options.port %>/tests/integration/notifier/vertx.html'
+                ],
+                "--web-security": false
+            }
         },
         jshint: {
             all: {
@@ -22,7 +36,8 @@ module.exports = function(grunt) {
     // grunt-contrib tasks
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
+    grunt.loadNpmTasks('grunt-contrib-connect');
 
     // Default task
-    grunt.registerTask('travis', ['jshint', 'qunit']);
+    grunt.registerTask('travis', ['connect', 'jshint', 'qunit']);
 };
