@@ -1,0 +1,38 @@
+{
+  "name": "aerogear-js-integration",
+  "title": "AeroGear JavaScript Library Integration Tests",
+  "version": "0.1.0",
+  "homepage": "https://github.com/aerogear/aerogear-js-integration",
+  "author": {
+    "name": "Red Hat, Inc.",
+    "url": "http://aerogear.org"
+  },
+  "maintainers": {
+    "name": "Kris Borchers",
+    "email": "kris@redhat.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aerogear/aerogear-js-integration.git"
+  },
+  "bugs": {
+    "url": "https://issues.jboss.org/browse/AGJS"
+  },
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "keywords": [],
+  "devDependencies": {
+    "grunt-contrib-concat": "~0.1.2",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-uglify": "~0.1.2",
+    "grunt-contrib-qunit": "~0.1.1",
+    "grunt": "~0.4.1"
+  },
+  "scripts": {
+    "test": "grunt travis --verbose"
+  }
+}
