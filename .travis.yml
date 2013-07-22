@@ -4,7 +4,7 @@ node_js:
 
 before_script:
   - npm install -g grunt-cli
-  - git clone https://github.com/abstractj/vertxbustest.git
+  - git clone https://github.com/kborchers/vertxbustest.git
   - cd vertxbustest
   - git checkout travisci
   - ./server.sh
