@@ -18,7 +18,7 @@ module.exports = function(grunt) {
             files: [],
             options: {
                 urls: [
-                    'http://localhost:<%= connect.server.options.port %>/tests/integration/notifier/vertx.html'
+                    'http://localhost:<%= connect.server.options.port %>/tests/notifier/vertx.html'
                 ],
                 "--web-security": false
             }
