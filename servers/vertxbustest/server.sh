@@ -1,6 +1,7 @@
 #!/bin/sh
 
-VERTX_VERSION="vert.x-2.0.0-final"
+BASE_DIR=`pwd`/$(dirname $0)
+VERTX_VERSION="$BASE_DIR/vert.x-2.0.0-final"
 
 if [ "$1" == "stop" ]; then
     echo "Server stopped!"
@@ -23,4 +24,4 @@ fi
 
 echo "Server started!"
 
-nohup $VERTX_VERSION/bin/vertx run diy/server.js -conf conf/config.json &
+nohup $VERTX_VERSION/bin/vertx run server.js -conf conf/config.json &

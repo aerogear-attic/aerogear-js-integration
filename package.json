@@ -34,6 +34,6 @@
     "grunt": "~0.4.1"
   },
   "scripts": {
-    "test": "grunt travis --verbose"
+    "postinstall": "grunt integration --verbose"
   }
 }
