@@ -39,5 +39,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
 
     // Default task
-    grunt.registerTask('travis', ['connect', 'jshint', 'qunit']);
+    grunt.registerTask('integration', ['connect', 'jshint', 'qunit']);
 };
