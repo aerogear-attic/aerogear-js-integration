@@ -23,4 +23,4 @@ fi
 
 echo "Server started!"
 
-nohup $VERTX_VERSION/bin/vertx run diy/server.js -conf conf/config.json &
+nohup $VERTX_VERSION/bin/vertx run server.js -conf conf/config.json &
