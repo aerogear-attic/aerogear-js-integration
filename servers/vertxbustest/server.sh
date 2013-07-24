@@ -18,7 +18,7 @@ if [ -d "$VERTX_PATH" ]; then
     rm -rf $VERTX_PATH/
 fi
 
-if [ -f "$VERTX_PATH.tar.gz" ]; then
+if [ ! -f "$VERTX_PATH.tar.gz" ]; then
     wget -c $DOWNLOAD_URL -P $BASE_DIR/
 fi
 
