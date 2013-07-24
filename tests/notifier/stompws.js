@@ -6,7 +6,7 @@ var stomp = AeroGear.Notifier({
     name: "stomp",
     type: "stompws",
     settings: {
-        connectURL: "ws://activemq-aerogearkb.rhcloud.com:8000/stomp"
+        connectURL: "ws://localhost:8081/stomp"
     }
 }).clients.stomp;
 

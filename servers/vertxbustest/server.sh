@@ -1,7 +1,9 @@
 #!/bin/sh
 
 BASE_DIR=`pwd`/$(dirname $0)
-VERTX_VERSION="$BASE_DIR/vert.x-2.0.0-final"
+VERTX_VERSION='vert.x-2.0.0-final'
+DOWNLOAD_URL="http://dl.bintray.com/vertx/downloads/$VERTX_VERSION.tar.gz"
+VERTX_PATH="$BASE_DIR/$VERTX_VERSION"
 
 if [ "$1" == "stop" ]; then
     echo "Server stopped!"
@@ -12,16 +14,20 @@ if [ "$1" == "stop" ]; then
     exit 0
 fi
 
-if [ -d "$VERTX_VERSION" ]; then
-  rm -rf $VERTX_VERSION/
+if [ -d "$VERTX_PATH" ]; then
+    rm -rf $VERTX_PATH/
 fi
 
-if [ -f "$VERTX_VERSION.tar.gz" ]; then
-  tar xzvf $VERTX_VERSION.tar.gz
+if [ ! -f "$VERTX_PATH.tar.gz" ]; then
+    wget -c $DOWNLOAD_URL -P $BASE_DIR/
+fi
+
+if [ -f "$VERTX_PATH.tar.gz" ]; then
+    tar xzvf $VERTX_PATH.tar.gz
 else
-  echo "The path does not contain a vertx distribution"
+    echo "The path does not contain a vertx distribution"
 fi
 
 echo "Server started!"
 
-nohup $VERTX_VERSION/bin/vertx run server.js -conf conf/config.json &
+nohup $VERTX_VERSION/bin/vertx run $BASE_DIR/server.js -conf $BASE_DIR/conf/config.json &
