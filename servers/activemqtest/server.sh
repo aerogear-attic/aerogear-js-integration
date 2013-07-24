@@ -1,9 +1,12 @@
 #!/bin/sh
 
 BASE_DIR=`pwd`/$(dirname $0)
+ACTIVEMQ_VERSION='apache-activemq-5.8.0'
+DOWNLOAD_URL="http://www.us.apache.org/dist/activemq/apache-activemq/5.8.0/$ACTIVEMQ_VERSION-bin.tar.gz"
+wget -c $DOWNLOAD_URL -P $BASE_DIR/
 
-export ACTIVEMQ_DATA="activemq/data"
-ACTIVEMQ_VERSION="$BASE_DIR/activemq"
+ACTIVEMQ_PATH="$BASE_DIR/$ACTIVEMQ_VERSION"
+export ACTIVEMQ_DATA="$ACTIVEMQ_VERSION/data"
 
 if [ "$1" == "stop" ]; then
     echo "Server stopped!"
@@ -14,16 +17,17 @@ if [ "$1" == "stop" ]; then
     exit 0
 fi
 
-if [ -d "$ACTIVEMQ_VERSION" ]; then
-  rm -rf $ACTIVEMQ_VERSION/
+if [ -d "$ACTIVEMQ_PATH" ]; then
+  rm -rf $ACTIVEMQ_PATH/
 fi
 
-if [ -f "$ACTIVEMQ_VERSION.tar.gz" ]; then
-  tar xzvf $ACTIVEMQ_VERSION.tar.gz 
+if [ -f "$ACTIVEMQ_PATH-bin.tar.gz" ]; then
+  tar xzvf $ACTIVEMQ_PATH-bin.tar.gz 
+  tar xzvf $BASE_DIR/conf.tar.gz -C $ACTIVEMQ_VERSION/
 else
   echo "The path does not contain a activemq distribution"
 fi
 
 echo "Server started!"
 
-nohup activemq/bin/activemq start &
+nohup $ACTIVEMQ_VERSION/bin/activemq start &
