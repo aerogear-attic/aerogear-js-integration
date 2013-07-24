@@ -24,7 +24,7 @@ if [ ! -f "$ACTIVEMQ_PATH-bin.tar.gz" ]; then
 fi
 
 if [ -f "$ACTIVEMQ_PATH-bin.tar.gz" ]; then
-    tar xzvf $ACTIVEMQ_PATH-bin.tar.gz 
+    tar xzvf $ACTIVEMQ_PATH-bin.tar.gz
     tar xzvf $BASE_DIR/conf.tar.gz -C $ACTIVEMQ_VERSION/
 else
     echo "The path does not contain a activemq distribution"
