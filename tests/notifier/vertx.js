@@ -6,7 +6,7 @@ var vertx = AeroGear.Notifier({
     name: "vertx",
     type: "vertx",
     settings: {
-        connectURL: "http://vertxbustest-aerogearkb.rhcloud.com:8000/eventbus"
+        connectURL: "http://localhost:8080/eventbus"
     }
 }).clients.vertx;
 
