@@ -20,7 +20,6 @@ fi
 
 if [ ! -f "$VERTX_PATH.tar.gz" ]; then
     wget -c $DOWNLOAD_URL -P $BASE_DIR/
-    wait -1
 fi
 
 if [ -f "$VERTX_PATH.tar.gz" ]; then
@@ -30,5 +29,5 @@ else
 fi
 
 nohup $VERTX_VERSION/bin/vertx run $BASE_DIR/server.js -conf $BASE_DIR/conf/config.json &
-sleep 1
+sleep 10
 echo "Server started!"

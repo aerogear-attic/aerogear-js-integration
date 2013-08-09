@@ -22,7 +22,6 @@ fi
 if [ ! -f "$ACTIVEMQ_PATH-bin.tar.gz" ]; then
     echo $DOWNLOAD_URL
     wget -c $DOWNLOAD_URL -P $BASE_DIR/
-    wait -1
 fi
 
 if [ -f "$ACTIVEMQ_PATH-bin.tar.gz" ]; then
@@ -34,5 +33,5 @@ else
 fi
 
 nohup apache-activemq-$ACTIVEMQ_VERSION/bin/activemq start &
-sleep 1
+sleep 10
 echo "Server started!"
