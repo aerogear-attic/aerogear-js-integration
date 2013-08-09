@@ -15,13 +15,23 @@ module.exports = function(grunt) {
             }
         },
         qunit: {
-            files: [],
-            options: {
-                urls: [
-                    'http://localhost:<%= connect.server.options.port %>/tests/notifier/vertx.html',
-                    'http://localhost:<%= connect.server.options.port %>/tests/notifier/stompws.html'
-                ],
-                "--web-security": false
+            vertx: {
+                files: [],
+                options: {
+                    urls: [
+                        'http://localhost:<%= connect.server.options.port %>/tests/notifier/vertx.html'
+                    ],
+                    "--web-security": false
+                }
+            },
+            activemq: {
+                files: [],
+                options: {
+                    urls: [
+                        'http://localhost:<%= connect.server.options.port %>/tests/notifier/stompws.html'
+                    ],
+                    "--web-security": false
+                }
             }
         },
         jshint: {
@@ -40,5 +50,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
 
     // Default task
-    grunt.registerTask('integration', ['connect', 'jshint', 'qunit']);
+    grunt.registerTask('integration-vertx', ['connect', 'jshint', 'qunit:vertx']);
+    grunt.registerTask('integration-activemq', ['connect', 'jshint', 'qunit:activemq']);
 };
