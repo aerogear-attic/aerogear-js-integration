@@ -20,6 +20,7 @@ fi
 
 if [ ! -f "$VERTX_PATH.tar.gz" ]; then
     wget -c $DOWNLOAD_URL -P $BASE_DIR/
+    wait -1
 fi
 
 if [ -f "$VERTX_PATH.tar.gz" ]; then
@@ -28,6 +29,6 @@ else
     echo "The path does not contain a vertx distribution"
 fi
 
-echo "Server started!"
-
 nohup $VERTX_VERSION/bin/vertx run $BASE_DIR/server.js -conf $BASE_DIR/conf/config.json &
+sleep 1
+echo "Server started!"
