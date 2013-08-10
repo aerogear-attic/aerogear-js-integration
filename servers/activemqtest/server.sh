@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BASE_DIR=`pwd`/$(dirname $0)
 ACTIVEMQ_VERSION='5.8.0'

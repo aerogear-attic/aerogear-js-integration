@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BASE_DIR=`pwd`/$(dirname $0)
 VERTX_VERSION='vert.x-2.0.0-final'
