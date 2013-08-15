@@ -1,4 +1,4 @@
-/*! AeroGear JavaScript Library - v1.1.2 - 2013-07-08
+/*! AeroGear JavaScript Library - v1.2.0-dev - 2013-08-14
 * https://github.com/aerogear/aerogear-js
 * JBoss, Home of Professional Open Source
 * Copyright Red Hat, Inc., and individual contributors
@@ -400,8 +400,65 @@ AeroGear.isArray = function( obj ) {
   }
 }());
 
+;(function () {
+
+  var
+    object = typeof window != 'undefined' ? window : exports,
+    chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
+    INVALID_CHARACTER_ERR = (function () {
+      // fabricate a suitable error object
+      try { document.createElement('$'); }
+      catch (error) { return error; }}());
+
+  // encoder
+  // [https://gist.github.com/999166] by [https://github.com/nignag]
+  object.btoa || (
+  object.btoa = function (input) {
+    for (
+      // initialize result and counter
+      var block, charCode, idx = 0, map = chars, output = '';
+      // if the next input index does not exist:
+      //   change the mapping table to "="
+      //   check if d has no fractional digits
+      input.charAt(idx | 0) || (map = '=', idx % 1);
+      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+    ) {
+      charCode = input.charCodeAt(idx += 3/4);
+      if (charCode > 0xFF) throw INVALID_CHARACTER_ERR;
+      block = block << 8 | charCode;
+    }
+    return output;
+  });
+
+  // decoder
+  // [https://gist.github.com/1020396] by [https://github.com/atk]
+  object.atob || (
+  object.atob = function (input) {
+    input = input.replace(/=+$/, '')
+    if (input.length % 4 == 1) throw INVALID_CHARACTER_ERR;
+    for (
+      // initialize result and counters
+      var bc = 0, bs, buffer, idx = 0, output = '';
+      // get next character
+      buffer = input.charAt(idx++);
+      // character found in table? initialize bit storage and add its ascii value;
+      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+        // and if not first of each 4 characters,
+        // convert the first 8 bits to one ascii character
+        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+    ) {
+      // try to find character in table (0-63, not found => -1)
+      buffer = chars.indexOf(buffer);
+    }
+    return output;
+  });
+
+}());
+
 /**
     The AeroGear.Pipeline provides a persistence API that is protocol agnostic and does not depend on any certain data model. Through the use of adapters, this library provides common methods like read, save and delete that will just work.
+    @status Stable
     @class
     @augments AeroGear.Core
     @param {String|Array|Object} [config] - A configuration for the pipe(s) being created along with the Pipeline. If an object or array containing objects is used, the objects can have the following properties:
@@ -476,6 +533,7 @@ AeroGear.Pipeline.adapters = {};
 /**
     The REST adapter is the default type used when creating a new pipe. It uses jQuery.ajax to communicate with the server. By default, the RESTful endpoint used by this pipe is the app's current context, followed by the pipe name. For example, if the app is running on http://mysite.com/myApp, then a pipe named `tasks` would use http://mysite.com/myApp/tasks as its REST endpoint.
     This constructor is instantiated when the "PipeLine.add()" method is called
+    @status Stable
     @constructs AeroGear.Pipeline.adapters.Rest
     @param {String} pipeName - the name used to reference this particular pipe
     @param {String} [type="Rest"] - the name used to reference this particular pipe
@@ -545,6 +603,16 @@ AeroGear.Pipeline.adapters.Rest = function( pipeName, settings ) {
      */
     this.getAjaxSettings = function() {
         return ajaxSettings;
+    };
+
+    /**
+        Returns the value of the private authenticator var
+        @private
+        @augments Rest
+        @returns {AeroGear.Authenticator}
+     */
+    this.getAuthenticator = function() {
+        return authenticator;
     };
 
     /**
@@ -1053,6 +1121,7 @@ AeroGear.Pipeline.adapters.Rest.prototype.remove = function( toRemove, options )
 
 /**
     A collection of data connections (stores) and their corresponding data models. This object provides a standard way to interact with client side data no matter the data format or storage mechanism used.
+    @status Stable
     @class
     @augments AeroGear.Core
     @param {String|Array|Object} [config] - A configuration for the store(s) being created along with the DataManager. If an object or array containing objects is used, the objects can have the following properties:
@@ -1133,6 +1202,7 @@ AeroGear.DataManager.STATUS_REMOVED = 0;
 /**
     The Memory adapter is the default type used when creating a new store. Data is simply stored in a data var and is lost on unload (close window, leave page, etc.)
     This constructor is instantiated when the "DataManager.add()" method is called
+    @status Stable
     @constructs AeroGear.DataManager.adapters.Memory
     @param {String} storeName - the name used to reference this particular store
     @param {Object} [settings={}] - the settings to be passed to the adapter
@@ -1557,6 +1627,7 @@ AeroGear.DataManager.adapters.Memory.prototype.filter = function( filterParamete
 /**
     The SessionLocal adapter extends the Memory adapter to store data in either session or local storage which makes it a little more persistent than memory
     This constructor is instantiated when the "DataManager.add()" method is called
+    @status Stable
     @constructs AeroGear.DataManager.adapters.SessionLocal
     @mixes AeroGear.DataManager.adapters.Memory
     @param {String} storeName - the name used to reference this particular store
@@ -1736,6 +1807,7 @@ dm.remove();
 
 /**
     The AeroGear.Auth namespace provides an authentication and enrollment API. Through the use of adapters, this library provides common methods like enroll, login and logout that will just work.
+    @status Stable
     @class
     @param {String|Array|Object} [config] - A configuration for the modules(s) being created along with the authenticator. If an object or array containing objects is used, the objects can have the following properties:
     @param {String} config.name - the name that the module will later be referenced by
@@ -1804,6 +1876,7 @@ AeroGear.Auth.adapters = {};
 /**
     The REST adapter is the default type used when creating a new authentication module. It uses jQuery.ajax to communicate with the server.
     This constructor is instantiated when the "Auth.add()" method is called
+    @status Stable
     @constructs AeroGear.Auth.adapters.Rest
     @param {String} moduleName - the name used to reference this particular auth module
     @param {Object} [settings={}] - the settings to be passed to the adapter
@@ -2145,311 +2218,1197 @@ AeroGear.Auth.adapters.Rest.prototype.logout = function( options ) {
     return jQuery.ajax( jQuery.extend( {}, this.getSettings(), { type: "POST" }, extraOptions ) );
 };
 
-(function( AeroGear, undefined ) {
-    /**
-        The AeroGear.Notifier namespace provides a messaging API. Through the use of adapters, this library provides common methods like connect, disconnect, subscribe, unsubscribe and publish.
-        @class
-        @augments AeroGear.Core
-        @param {String|Array|Object} [config] - A configuration for the client(s) being created along with the notifier. If an object or array containing objects is used, the objects can have the following properties:
-        @param {String} config.name - the name that the client will later be referenced by
-        @param {String} [config.type="vertx"] - the type of client as determined by the adapter used
-        @param {Object} [config.settings={}] - the settings to be passed to the adapter
-        @returns {Object} The created notifier containing any messaging clients that may have been created
-        @example
-        // Create an empty notifier
-        var notifier = AeroGear.Notifier();
+/**
+    The AeroGear.Notifier namespace provides a messaging API. Through the use of adapters, this library provides common methods like connect, disconnect, subscribe, unsubscribe and publish.
+    @status Stable
+    @class
+    @augments AeroGear.Core
+    @param {String|Array|Object} [config] - A configuration for the client(s) being created along with the notifier. If an object or array containing objects is used, the objects can have the following properties:
+    @param {String} config.name - the name that the client will later be referenced by
+    @param {String} [config.type="vertx"] - the type of client as determined by the adapter used
+    @param {Object} [config.settings={}] - the settings to be passed to the adapter
+    @returns {Object} The created notifier containing any messaging clients that may have been created
+    @example
+    // Create an empty notifier
+    var notifier = AeroGear.Notifier();
 
-        // Create a single client using the default adapter
-        var notifier2 = AeroGear.Notifier( "myNotifier" );
+    // Create a single client using the default adapter
+    var notifier2 = AeroGear.Notifier( "myNotifier" );
 
-        // Create multiple clients using the default adapter
-        var notifier3 = AeroGear.Notifier( [ "someNotifier", "anotherNotifier" ] );
+    // Create multiple clients using the default adapter
+    var notifier3 = AeroGear.Notifier( [ "someNotifier", "anotherNotifier" ] );
 
-        // Create a default adapter with settings
-        var notifier4 = AeroGear.Notifier({
+    // Create a default adapter with settings
+    var notifier4 = AeroGear.Notifier({
+        name: "vertxNotifier",
+        type: "vertx",
+        settings: { ... }
+    });
+
+    // Create a stompws adapter with settings
+    var notifier5 = AeroGear.Notifier({
+        name: "STOMPNotifier",
+        type: "stompws",
+        settings: { ... }
+    });
+
+    // Create a vertx and stompws adapter with settings
+    var notifier6 = AeroGear.Notifier([
+        {
             name: "vertxNotifier",
             type: "vertx",
             settings: { ... }
-        });
-
-        // Create a stompws adapter with settings
-        var notifier5 = AeroGear.Notifier({
+        },
+        {
             name: "STOMPNotifier",
             type: "stompws",
             settings: { ... }
-        });
-
-        // Create a vertx and stompws adapter with settings
-        var notifier6 = AeroGear.Notifier([
-            {
-                name: "vertxNotifier",
-                type: "vertx",
-                settings: { ... }
-            },
-            {
-                name: "STOMPNotifier",
-                type: "stompws",
-                settings: { ... }
-            }
-        ]);
-     */
-    AeroGear.Notifier = function( config ) {
-        // Allow instantiation without using new
-        if ( !( this instanceof AeroGear.Notifier ) ) {
-            return new AeroGear.Notifier( config );
         }
-        // Super Constructor
-        AeroGear.Core.call( this );
+    ]);
+ */
+AeroGear.Notifier = function( config ) {
+    // Allow instantiation without using new
+    if ( !( this instanceof AeroGear.Notifier ) ) {
+        return new AeroGear.Notifier( config );
+    }
+    // Super Constructor
+    AeroGear.Core.call( this );
 
-        this.lib = "Notifier";
-        this.type = config ? config.type || "vertx" : "vertx";
+    this.lib = "Notifier";
+    this.type = config ? config.type || "vertx" : "vertx";
 
-        /**
-            The name used to reference the collection of notifier client instances created from the adapters
-            @memberOf AeroGear.Notifier
-            @type Object
-            @default modules
-         */
-        this.collectionName = "clients";
+    /**
+        The name used to reference the collection of notifier client instances created from the adapters
+        @memberOf AeroGear.Notifier
+        @type Object
+        @default modules
+     */
+    this.collectionName = "clients";
 
-        this.add( config );
+    this.add( config );
+};
+
+AeroGear.Notifier.prototype = AeroGear.Core;
+AeroGear.Notifier.constructor = AeroGear.Notifier;
+
+/**
+    The adapters object is provided so that adapters can be added to the AeroGear.Notifier namespace dynamically and still be accessible to the add method
+    @augments AeroGear.Notifier
+ */
+AeroGear.Notifier.adapters = {};
+
+/**
+    A set of constants used to track the state of a client connection.
+ */
+AeroGear.Notifier.CONNECTING = 0;
+AeroGear.Notifier.CONNECTED = 1;
+AeroGear.Notifier.DISCONNECTING = 2;
+AeroGear.Notifier.DISCONNECTED = 3;
+
+/**
+    This adapter allows communication with the AeroGear implementation of the SimplePush server protocol. Most of this functionality will be hidden behind the SimplePush client polyfill but is accessible if necessary.
+    @status Experimental
+    @constructs AeroGear.Notifier.adapters.SimplePush
+    @param {String} clientName - the name used to reference this particular notifier client
+    @param {Object} [settings={}] - the settings to be passed to the adapter
+    @param {String} [settings.connectURL=""] - defines the URL for connecting to the messaging service
+    @param {Boolean} [settings.useNative=false] - Create a WebSocket connection to the Mozilla SimplePush server instead of a SockJS connection to a custom server
+    @returns {Object} The created notifier client
+ */
+AeroGear.Notifier.adapters.SimplePush = function( clientName, settings ) {
+    // Allow instantiation without using new
+    if ( !( this instanceof AeroGear.Notifier.adapters.SimplePush ) ) {
+        return new AeroGear.Notifier.adapters.SimplePush( clientName, settings );
+    }
+
+    settings = settings || {};
+
+    // Private Instance vars
+    var type = "SimplePush",
+        name = clientName,
+        connectURL = settings.connectURL || "",
+        useNative = settings.useNative || false,
+        client = null,
+        pushStore = JSON.parse( localStorage.getItem("ag-push-store") || '{}' );
+
+    pushStore.channels = pushStore.channels || [];
+    for ( var channel in pushStore.channels ) {
+        pushStore.channels[ channel ].state = "available";
+    }
+    localStorage.setItem( "ag-push-store", JSON.stringify( pushStore ) );
+
+    // Privileged methods
+    /**
+        Returns the value of the private settings var
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.getSettings = function() {
+        return settings;
     };
 
-    AeroGear.Notifier.prototype = AeroGear.Core;
-    AeroGear.Notifier.constructor = AeroGear.Notifier;
-
     /**
-        The adapters object is provided so that adapters can be added to the AeroGear.Notifier namespace dynamically and still be accessible to the add method
-        @augments AeroGear.Notifier
+        Returns the value of the private name var
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
      */
-    AeroGear.Notifier.adapters = {};
+    this.getName = function() {
+        return name;
+    };
 
     /**
-        A set of constants used to track the state of a client connection.
+        Returns the value of the private connectURL var
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
      */
-    AeroGear.Notifier.CONNECTING = 0;
-    AeroGear.Notifier.CONNECTED = 1;
-    AeroGear.Notifier.DISCONNECTING = 2;
-    AeroGear.Notifier.DISCONNECTED = 3;
-})( AeroGear );
+    this.getConnectURL = function() {
+        return connectURL;
+    };
 
-(function( AeroGear, VX, undefined ) {
     /**
-        The vertx adapter is the default type used when creating a new notifier client. It uses the vert.x bus and underlying SockJS implementation for messaging.
-        @constructs AeroGear.Notifier.adapters.vertx
-        @param {String} clientName - the name used to reference this particular notifier client
-        @param {Object} [settings={}] - the settings to be passed to the adapter
-        @param {Boolean} [settings.autoConnect=false] - Automatically connect the client to the connectURL on creation. This option is ignored and a connection is automatically established if channels are provided as the connection is necessary prior to channel subscription
-        @param {String} [settings.connectURL=""] - defines the URL for connecting to the messaging service
-        @param {Function} [settings.onConnect] - callback to be executed when a connection is established if autoConnect === true
-        @param {Function} [settings.onDisconnect] - callback to be executed when a connection is terminated if autoConnect === true
-        @param {Function} [settings.onConnectError] - callback to be executed when connecting to a service is unsuccessful if autoConnect === true
-        @param {Array} [settings.channels=[]] - a set of channel objects to which this client can subscribe. Each object should have a String address as well as a callback to be executed when a message is received on that channel.
-        @returns {Object} The created notifier client
-        @example
-        // Create an empty Notifier
-        var notifier = AeroGear.Notifier();
+        Set the value of the private connectURL var
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+        @param {String} url - New connectURL for this client
+     */
+    this.setConnectURL = function( url ) {
+        connectURL = url;
+    };
 
-        // Create a channel object and the channel callback function
-        var channelObject = {
+    /**
+        Returns the value of the private useNative var
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.getUseNative = function() {
+        return useNative;
+    };
+
+    /**
+        Returns the value of the private client var
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.getClient = function() {
+        return client;
+    };
+
+    /**
+        Sets the value of the private client var
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.setClient = function( newClient ) {
+        client = newClient;
+    };
+
+    /**
+        Returns the value of the private pushStore var
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.getPushStore = function() {
+        return pushStore;
+    };
+
+    /**
+        Sets the value of the private pushStore var as well as the local store
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.setPushStore = function( newStore ) {
+        pushStore = newStore;
+        localStorage.setItem( "ag-push-store", JSON.stringify( newStore ) );
+    };
+
+    /**
+        Processes all incoming messages from the SimplePush server
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.processMessage = function( message ) {
+        var channel, updates;
+        if ( message.messageType === "register" && message.status === 200 ) {
+            channel = {
+                channelID: message.channelID,
+                version: message.version,
+                state: "used"
+            };
+            pushStore.channels = this.updateChannel( pushStore.channels, channel );
+            this.setPushStore( pushStore );
+
+            // Send the push endpoint to the client for app registration
+            channel.pushEndpoint = message.pushEndpoint;
+
+            // Trigger registration success callback
+            jQuery( navigator.push ).trigger( jQuery.Event( message.channelID + "-success", {
+                target: {
+                    result: channel
+                }
+            }));
+        } else if ( message.messageType === "register" ) {
+            throw "SimplePushRegistrationError";
+        } else if ( message.messageType === "unregister" && message.status === 200 ) {
+            pushStore.channels.splice( this.findChannelIndex( pushStore.channels, "channelID", message.channelID ), 1 );
+            this.setPushStore( pushStore );
+        } else if ( message.messageType === "unregister" ) {
+            throw "SimplePushUnregistrationError";
+        } else if ( message.messageType === "notification" ) {
+            updates = message.updates;
+
+            // Notifications could come in a batch so process all
+            for ( var i = 0, updateLength = updates.length; i < updateLength; i++ ) {
+
+                // Trigger the push event which apps will create their listeners to respond to when receiving messages
+                jQuery( navigator.push ).trigger( jQuery.Event( "push", {
+                    message: updates[ i ]
+                }));
+            }
+
+            // Acknowledge all updates sent in this notification message
+            message.messageType = "ack";
+            client.send( JSON.stringify( message ) );
+        }
+    };
+
+    /**
+        Generate the hello message send during the initial handshake with the SimplePush server. Sends any pre-existing channels for reregistration as well
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.generateHello = function() {
+        var channels = pushStore.channels,
+            msg = {
+            messageType: "hello",
+            uaid: "",
+            channelIDs: []
+        };
+
+        if ( pushStore.uaid ) {
+            msg.uaid = pushStore.uaid;
+        }
+        if ( channels && msg.uaid !== "" ) {
+            for ( var length = channels.length, i = length - 1; i > -1; i-- ) {
+                msg.channelIDs.push( pushStore.channels[ i ].channelID );
+            }
+        }
+
+        return JSON.stringify( msg );
+    };
+
+    // Utility Functions
+    /**
+        Find the array index of a particular channel based on a particular field value
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.findChannelIndex = function( channels, filterField, filterValue ) {
+        for ( var i = 0; i < channels.length; i++ ) {
+            if ( channels[ i ][ filterField ] === filterValue ) {
+                return i;
+            }
+        }
+    };
+
+    /**
+        Update a channel with new information
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.updateChannel = function( channels, channel ) {
+        for( var i = 0; i < channels.length; i++ ) {
+            if ( channels[ i ].channelID === channel.channelID ) {
+                channels[ i ].version = channel.version;
+                channels[ i ].state = channel.state;
+                break;
+            }
+        }
+
+        return channels;
+    };
+
+    /**
+        Proxies the binding of subscription success handlers
+        @private
+        @augments AeroGear.Notifier.adapters.SimplePush
+     */
+    this.bindSubscribeSuccess = function( channelID, request ) {
+        jQuery( navigator.push ).off( channelID + "-success" );
+        jQuery( navigator.push ).on( channelID + "-success", function( event ) {
+            request.onsuccess( event );
+        });
+    };
+};
+
+//Public Methods
+/**
+    Connect the client to the messaging service
+    @param {Object} [options] - Options to pass to the connect method
+    @param {String} [options.url] - The URL for the messaging service. This url will override and reset any connectURL specified when the client was created.
+    @param {Function} [options.onConnect] - callback to be executed when a connection is established and hello message has been acknowledged
+    @param {Function} [options.onConnectError] - callback to be executed when connecting to a service is unsuccessful
+    @param {Function} [options.onClose] - callback to be executed when a connection to the server is closed
+    @example
+    var SPNotifier = AeroGear.Notifier({
+        name: "sp",
+        type: "SimplePush",
+        settings: {
+            connectURL: "http://localhost:7777/simplepush"
+        }
+    }).clients.sp;
+
+    // Use all defaults
+    SPNotifier.connect();
+
+    // Custom options
+    SPNotifier.connect({
+        simplePushServerURL: "http://some.other.domain",
+        onConnect: spConnect,
+        onClose: spClose
+    });
+ */
+AeroGear.Notifier.adapters.SimplePush.prototype.connect = function( options ) {
+    options = options || {};
+
+    var that = this,
+        client = this.getUseNative() ? new WebSocket( options.url || this.getConnectURL() ) : new SockJS( options.url || this.getConnectURL() );
+
+    client.onopen = function() {
+        // Immediately send hello message
+        client.send( that.generateHello() );
+    };
+
+    client.onerror = function( error ) {
+        if ( options.onConnectError ) {
+            options.onConnectError.apply( this, arguments );
+        }
+    };
+
+    client.onmessage = function( message ) {
+        var pushStore = that.getPushStore();
+        message = JSON.parse( message.data );
+
+        if ( message.messageType === "hello" ) {
+            if ( message.uaid !== pushStore.uaid ) {
+                pushStore.uaid = message.uaid;
+                that.setPushStore( pushStore );
+            }
+
+            if ( options.onConnect ) {
+                options.onConnect( message );
+            }
+        } else {
+            that.processMessage( message );
+        }
+    };
+
+    client.onclose = function() {
+        if ( options.onClose ) {
+            options.onClose.apply( this, arguments );
+        }
+    };
+
+    this.setClient( client );
+};
+
+/**
+    Disconnect the client from the messaging service
+    @param {Function} [onDisconnect] - callback to be executed when a connection is terminated
+    @example
+    var SPNotifier = AeroGear.Notifier({
+        name: "sp",
+        type: "SimplePush",
+        settings: {
+            connectURL: "http://localhost:7777/simplepush"
+        }
+    }).clients.sp;
+
+    // Default
+    SPNotifier.disconnect();
+
+    // Pass disconnect callback
+    SPNotifier.disconnect(function() {
+        console.log("Disconnected");
+    });
+ */
+AeroGear.Notifier.adapters.SimplePush.prototype.disconnect = function( onDisconnect ) {
+    var client = this.getClient();
+
+    client.close();
+    if ( onDisconnect ) {
+        onDisconnect();
+    }
+};
+
+/**
+    Subscribe this client to a new channel
+    @param {Object|Array} channels - a channel object or array of channel objects to which this client can subscribe. At a minimum, each channel should contain a requestObject which will eventually contain the subscription success callback and a callback, which is fired when notifications are received. Reused channels may also contain channelID and other metadata.
+    @param {Boolean} [reset] - if true, remove all channels from the set and replace with the supplied channel(s)
+    @example
+    var SPNotifier = AeroGear.Notifier({
+        name: "sp",
+        type: "SimplePush",
+        settings: {
+            connectURL: "http://localhost:7777/simplepush"
+        }
+    }).clients.sp;
+
+    SPNotifier.subscribe({
+        requestObject: {},
+        callback: function( message ) {
+            console.log("Notification Received");
+        }
+    });
+ */
+AeroGear.Notifier.adapters.SimplePush.prototype.subscribe = function( channels, reset ) {
+    var index, response, channelID, channelLength,
+        processed = false,
+        client = this.getClient(),
+        pushStore = this.getPushStore();
+
+    if ( reset ) {
+        this.unsubscribe( this.getChannels() );
+    }
+
+    channels = AeroGear.isArray( channels ) ? channels : [ channels ];
+    pushStore.channels = pushStore.channels || [];
+    channelLength = pushStore.channels.length;
+
+    for ( var i = 0; i < channels.length; i++ ) {
+        // check for previously registered channels
+        if ( channelLength ) {
+            index = this.findChannelIndex( pushStore.channels, "state", "available" );
+            if ( index !== undefined ) {
+                this.bindSubscribeSuccess( pushStore.channels[ index ].channelID, channels[ i ].requestObject );
+                channels[ i ].channelID = pushStore.channels[ index ].channelID;
+                channels[ i ].state = "used";
+
+                // Trigger the registration event since there will be no register message
+                setTimeout((function(channel) {
+                    return function() {
+                        jQuery( navigator.push ).trigger( jQuery.Event( channel.channelID + "-success", {
+                            target: {
+                                result: channel
+                            }
+                        }));
+                    };
+                })(channels[ i ]), 0);
+
+                pushStore.channels[ index ] = channels[ i ];
+                processed = true;
+            }
+        }
+
+        // No previous channels available so add a new one
+        if ( !processed ) {
+            channels[ i ].channelID = channels[ i ].channelID || uuid();
+            channels[ i ].state = "used";
+            this.bindSubscribeSuccess( channels[ i ].channelID, channels[ i ].requestObject );
+            client.send('{"messageType": "register", "channelID": "' + channels[ i ].channelID + '"}');
+
+            pushStore.channels.push( channels[ i ] );
+        }
+
+        processed = false;
+    }
+
+    this.setPushStore( pushStore );
+};
+
+/**
+    Unsubscribe this client from a channel
+    @param {Object|Array} channels - a channel object or a set of channel objects to which this client nolonger wishes to subscribe
+    @example
+    var SPNotifier = AeroGear.Notifier({
+        name: "sp",
+        type: "SimplePush",
+        settings: {
+            connectURL: "http://localhost:7777/simplepush"
+        }
+    }).clients.sp;
+
+    SPNotifier.unsubscribe( channelObject );
+ */
+AeroGear.Notifier.adapters.SimplePush.prototype.unsubscribe = function( channels ) {
+    var client = this.getClient();
+
+    channels = AeroGear.isArray( channels ) ? channels : [ channels ];
+    for ( var i = 0; i < channels.length; i++ ) {
+        client.send( '{"messageType": "unregister", "channelID": "' + channels[ i ].channelID + '"}');
+    }
+};
+
+/**
+    The vertx adapter is the default type used when creating a new notifier client. It uses the vert.x bus and underlying SockJS implementation for messaging.
+    @status Stable
+    @constructs AeroGear.Notifier.adapters.vertx
+    @param {String} clientName - the name used to reference this particular notifier client
+    @param {Object} [settings={}] - the settings to be passed to the adapter
+    @param {Boolean} [settings.autoConnect=false] - Automatically connect the client to the connectURL on creation. This option is ignored and a connection is automatically established if channels are provided as the connection is necessary prior to channel subscription
+    @param {String} [settings.connectURL=""] - defines the URL for connecting to the messaging service
+    @param {Function} [settings.onConnect] - callback to be executed when a connection is established if autoConnect === true
+    @param {Function} [settings.onDisconnect] - callback to be executed when a connection is terminated if autoConnect === true
+    @param {Function} [settings.onConnectError] - callback to be executed when connecting to a service is unsuccessful if autoConnect === true
+    @param {Array} [settings.channels=[]] - a set of channel objects to which this client can subscribe. Each object should have a String address as well as a callback to be executed when a message is received on that channel.
+    @returns {Object} The created notifier client
+    @example
+    // Create an empty Notifier
+    var notifier = AeroGear.Notifier();
+
+    // Create a channel object and the channel callback function
+    var channelObject = {
+        address: "org.aerogear.messaging.global",
+        callback: channelCallback
+    };
+
+    function channelCallback( message ) {
+        console.log( message );
+    }
+
+    // Add a vertx client with all the settings
+    notifier.add({
+        name: "client1",
+        settings: {
+            autoConnect: true,
+            connectURL: window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + "/eventbus",
+            onConnect: function() {
+                console.log( "connected" );
+            },
+            onConnectError: function() {
+                console.log( "connection error" );
+            },
+            onDisconnect: function() {
+                console.log( "Disconnected" );
+            },
+            channels: [ channelObject ]
+        }
+    });
+ */
+AeroGear.Notifier.adapters.vertx = function( clientName, settings ) {
+    // Allow instantiation without using new
+    if ( !( this instanceof AeroGear.Notifier.adapters.vertx ) ) {
+        return new AeroGear.Notifier.adapters.vertx( clientName, settings );
+    }
+
+    settings = settings || {};
+
+    // Private Instance vars
+    var type = "vertx",
+        name = clientName,
+        channels = settings.channels || [],
+        autoConnect = !!settings.autoConnect || channels.length,
+        connectURL = settings.connectURL || "",
+        state = AeroGear.Notifier.CONNECTING,
+        bus = null;
+
+    // Privileged methods
+    /**
+        Returns the value of the private connectURL var
+        @private
+        @augments vertx
+     */
+    this.getConnectURL = function() {
+        return connectURL;
+    };
+
+    /**
+        Set the value of the private connectURL var
+        @private
+        @augments vertx
+        @param {String} url - New connectURL for this client
+     */
+    this.setConnectURL = function( url ) {
+        connectURL = url;
+    };
+
+    /**
+        Returns the value of the private channels var
+        @private
+        @augments vertx
+     */
+    this.getChannels = function() {
+        return channels;
+    };
+
+    /**
+        Adds a channel to the set
+        @param {Object} channel - The channel object to add to the set
+        @private
+        @augments vertx
+     */
+    this.addChannel = function( channel ) {
+        channels.push( channel );
+    };
+
+    /**
+        Check if subscribed to a channel
+        @param {String} address - The address of the channel object to search for in the set
+        @private
+        @augments vertx
+     */
+    this.getChannelIndex = function( address ) {
+        for ( var i = 0; i < channels.length; i++ ) {
+            if ( channels[ i ].address === address ) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
+    /**
+        Removes a channel from the set
+        @param {Object} channel - The channel object to remove from the set
+        @private
+        @augments vertx
+     */
+    this.removeChannel = function( channel ) {
+        var index = this.getChannelIndex( channel.address );
+        if ( index >= 0 ) {
+            channels.splice( index, 1 );
+        }
+    };
+
+    /**
+        Returns the value of the private state var
+        @private
+        @augments vertx
+     */
+    this.getState = function() {
+        return state;
+    };
+
+    /**
+        Sets the value of the private state var
+        @private
+        @augments vertx
+     */
+    this.setState = function( newState ) {
+        state = newState;
+    };
+
+    /**
+        Returns the value of the private bus var
+        @private
+        @augments vertx
+     */
+    this.getBus = function() {
+        return bus;
+    };
+
+    /**
+        Sets the value of the private bus var
+        @private
+        @augments vertx
+     */
+    this.setBus = function( newBus ) {
+        bus = newBus;
+    };
+
+    // Handle auto-connect
+    if ( autoConnect || channels.length ) {
+        this.connect({
+            url: connectURL,
+            onConnect: settings.onConnect,
+            onDisconnect: settings.onDisconnect,
+            onConnectError: settings.onConnectError
+        });
+    }
+};
+
+//Public Methods
+/**
+    Connect the client to the messaging service
+    @param {Object} [options={}] - Options to pass to the connect method
+    @param {String} [options.url] - The URL for the messaging service. This url will override and reset any connectURL specified when the client was created.
+    @param {Function} [options.onConnect] - callback to be executed when a connection is established
+    @param {Function} [options.onDisconnect] - callback to be executed when a connection is terminated
+    @param {Function} [options.onConnectError] - callback to be executed when connecting to a service is unsuccessful
+    @example
+    // Create an empty Notifier
+    var notifier = AeroGear.Notifier();
+
+    // Add a vertx client
+    notifier.add({
+        name: "client1",
+        settings: {
+            connectURL: window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + "/eventbus",
+            onConnect: function() {
+                console.log( "connected" );
+            },
+            onConnectError: function() {
+                console.log( "connection error" );
+            },
+            onDisconnect: function() {
+                console.log( "Disconnected" );
+            }
+        }
+    });
+
+    // Connect to the vertx messaging service
+    notifierVertx.clients.client1.connect();
+
+ */
+AeroGear.Notifier.adapters.vertx.prototype.connect = function( options ) {
+    options = options || {};
+    var that = this,
+        bus = new vertx.EventBus( options.url || this.getConnectURL() );
+
+    bus.onopen = function() {
+        // Make a Copy of the channel array instead of a reference.
+        var channels = that.getChannels().slice( 0 );
+
+        that.setState( AeroGear.Notifier.CONNECTED );
+
+        that.subscribe( channels, true );
+
+        if ( options.onConnect ) {
+            options.onConnect.apply( this, arguments );
+        }
+    };
+
+    bus.onclose = function() {
+        if ( that.getState() === AeroGear.Notifier.DISCONNECTING ) {
+            // Fire disconnect as usual
+            that.setState( AeroGear.Notifier.DISCONNECTED );
+            if ( options.onDisconnect ) {
+                options.onDisconnect.apply( this, arguments );
+            }
+        } else {
+            // Error connecting so fire error callback
+            if ( options.onConnectError ) {
+                options.onConnectError.apply( this, arguments );
+            }
+        }
+    };
+
+    this.setBus( bus );
+};
+
+/**
+    Disconnect the client from the messaging service
+    @example
+    // Create an empty Notifier
+    var notifier = AeroGear.Notifier();
+
+    // Add a vertx client
+    notifier.add({
+        name: "client1",
+        settings: {
+            connectURL: window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + "/eventbus",
+            onConnect: function() {
+                console.log( "connected" );
+            },
+            onConnectError: function() {
+                console.log( "connection error" );
+            },
+            onDisconnect: function() {
+                console.log( "Disconnected" );
+            }
+        }
+    });
+
+    // Connect to the vertx messaging service
+    notifierVertx.clients.client1.connect();
+
+    // Disconnect from the vertx messaging service
+    notifierVertx.clients.client1.disconnect();
+
+ */
+AeroGear.Notifier.adapters.vertx.prototype.disconnect = function() {
+    var bus = this.getBus();
+    if ( this.getState() === AeroGear.Notifier.CONNECTED ) {
+        this.setState( AeroGear.Notifier.DISCONNECTING );
+        bus.close();
+    }
+};
+
+/**
+    Subscribe this client to a new channel
+    @param {Object|Array} channels - a channel object or array of channel objects to which this client can subscribe. Each object should have a String address as well as a callback to be executed when a message is received on that channel.
+    @param {Boolean} [reset] - if true, remove all channels from the set and replace with the supplied channel(s)
+    @example
+    // Create an empty Notifier
+    var notifier = AeroGear.Notifier();
+
+    // Create a channel object and the channel callback function
+    var channelObject = {
+        address: "org.aerogear.messaging.global",
+        callback: channelCallback
+    };
+
+    function channelCallback( message ) {
+        console.log( message );
+    }
+
+    // Add a vertx client with autoConnect === true and no channels
+    notifier.add({
+        name: "client1",
+        settings: {
+            autoConnect: true,
+            connectURL: window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + "/eventbus",
+            onConnect: function() {
+                console.log( "connected" );
+            },
+            onConnectError: function() {
+                console.log( "connection error" );
+            },
+            onDisconnect: function() {
+                console.log( "Disconnected" );
+            }
+        }
+    });
+
+    //Subscribe to a channel
+    notifierVertx.clients.client1.subscribe( channelObject );
+
+    //Subscribe to multiple channels at once
+    notifierVertx.clients.client1.subscribe([
+        {
+            address: "newChannel",
+            callback: function(){...}
+        },
+        {
+            address: "anotherChannel",
+            callback: function(){ ... }
+        }
+    ]);
+
+    //Subscribe to a channel, but first unsubscribe from all currently subscribed channels by adding the reset parameter
+    notifierVertx.clients.client1.subscribe({
+            address: "newChannel",
+            callback: function(){ ... }
+        }, true );
+ */
+AeroGear.Notifier.adapters.vertx.prototype.subscribe = function( channels, reset ) {
+    var bus = this.getBus();
+
+    if ( reset ) {
+        this.unsubscribe( this.getChannels() );
+    }
+
+    channels = AeroGear.isArray( channels ) ? channels : [ channels ];
+    for ( var i = 0; i < channels.length; i++ ) {
+        this.addChannel( channels[ i ] );
+        bus.registerHandler( channels[ i ].address, channels[ i ].callback );
+    }
+};
+
+/**
+    Unsubscribe this client from a channel
+    @param {Object|Array} channels - a channel object or a set of channel objects to which this client nolonger wishes to subscribe
+    @example
+    // Unsubscribe from a previously subscribed channel
+    notifierVertx.clients.client1.unsubscribe(
+        {
             address: "org.aerogear.messaging.global",
             callback: channelCallback
-        };
-
-        function channelCallback( message ) {
-            console.log( message );
         }
+    );
 
-        // Add a vertx client with all the settings
-        notifier.add({
-            name: "client1",
-            settings: {
-                autoConnect: true,
-                connectURL: window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + "/eventbus",
-                onConnect: function() {
-                    console.log( "connected" );
-                },
-                onConnectError: function() {
-                    console.log( "connection error" );
-                },
-                onDisconnect: function() {
-                    console.log( "Disconnected" );
-                },
-                channels: [ channelObject ]
-            }
-        });
+    // Unsubscribe from multiple channels
+    notifierVertx.clients.client1.unsubscribe([
+        {
+            address: "newChannel",
+            callback: newCallbackFunction
+        },
+        {
+            address: "anotherChannel",
+            callback: "anotherChannelCallbackFunction"
+        }
+    ]);
+
+
+ */
+AeroGear.Notifier.adapters.vertx.prototype.unsubscribe = function( channels ) {
+    var bus = this.getBus();
+
+    channels = AeroGear.isArray( channels ) ? channels : [ channels ];
+    for ( var i = 0; i < channels.length; i++ ) {
+        this.removeChannel( channels[ i ] );
+        bus.unregisterHandler( channels[ i ].address, channels[ i ].callback );
+    }
+};
+
+/**
+    Send a message to a particular channel
+    @param {String} channel - the channel to which to send the message
+    @param {String|Object} [message=""] - the message object to send
+    @example
+    // Send an empty message to a channel
+    notifier.clients.client1.send( "test.address" );
+
+    // Send a "Hello" message to a channel
+    notifier.clients.client1.send( "test.address", "Hello" );
+
+    // Send a "Hello" message as an object
+    notifier.clients.client1.send( "test.address", { "message": "Hello" } );
+
+ */
+AeroGear.Notifier.adapters.vertx.prototype.send = function( channel, message ) {
+    var bus = this.getBus();
+
+    message = message || "";
+
+    bus.send( channel, message );
+};
+
+/**
+    The stomp adapter uses an underlying stomp.js implementation for messaging.
+    @status Stable
+    @constructs AeroGear.Notifier.adapters.stompws
+    @param {String} clientName - the name used to reference this particular notifier client
+    @param {Object} [settings={}] - the settings to be passed to the adapter
+    @param {Boolean} [settings.autoConnect=false] - Automatically connect the client to the connectURL on creation IF LOGIN IS NOT NEEDED. This option is ignored and a connection is automatically established if channels are provided as the connection is necessary prior to channel subscription
+    @param {String} [settings.connectURL=""] - defines the URL for connecting to the messaging service
+    @param {Function} [settings.onConnect] - callback to be executed when a connection is established if autoConnect === true
+    @param {Function} [settings.onConnectError] - callback to be executed when connecting to a service is unsuccessful if autoConnect === true
+    @param {Array} [settings.channels=[]] - a set of channel objects to which this client can subscribe. Each object should have a String address as well as a callback to be executed when a message is received on that channel.
+    @returns {Object} The created notifier client
+    @example
+    // Create an empty Notifier
+    var notifier = AeroGear.Notifier();
+
+    // Create a channel object and the channel callback function
+    var channelObject = {
+        address: "org.aerogear.messaging.global",
+        callback: channelCallback
+    };
+
+    function channelCallback( message ) {
+        console.log( message );
+    }
+
+    // Add a stompws client with all the settings that will autoConnect to the server and subscribe to a channel
+    notifier.add({
+        name: "client1",
+        type: "stompws"
+        settings: {
+            autoConnect: true,
+            connectURL: "ws://localhost:61614/stomp",
+            onConnect: function() {
+                console.log( "connected" );
+            },
+            onConnectError: function() {
+                console.log( "connection error" );
+            },
+            channels: [ channelObject ]
+        }
+    });
+ */
+AeroGear.Notifier.adapters.stompws = function( clientName, settings ) {
+    // Allow instantiation without using new
+    if ( !( this instanceof AeroGear.Notifier.adapters.stompws ) ) {
+        return new AeroGear.Notifier.adapters.stompws( clientName, settings );
+    }
+
+    settings = settings || {};
+
+    // Private Instance vars
+    var type = "stompws",
+        name = clientName,
+        channels = settings.channels || [],
+        autoConnect = !!settings.autoConnect || channels.length,
+        connectURL = settings.connectURL || "",
+        state = AeroGear.Notifier.CONNECTING,
+        client = null;
+
+    // Privileged methods
+    /**
+        Returns the value of the private connectURL var
+        @private
+        @augments AeroGear.Notifier.adapters.stompws
      */
-    AeroGear.Notifier.adapters.vertx = function( clientName, settings ) {
-        // Allow instantiation without using new
-        if ( !( this instanceof AeroGear.Notifier.adapters.vertx ) ) {
-            return new AeroGear.Notifier.adapters.vertx( clientName, settings );
+    this.getConnectURL = function() {
+        return connectURL;
+    };
+
+    /**
+        Set the value of the private connectURL var
+        @private
+        @augments AeroGear.Notifier.adapters.stompws
+        @param {String} url - New connectURL for this client
+     */
+    this.setConnectURL = function( url ) {
+        connectURL = url;
+    };
+
+    /**
+        Returns the value of the private channels var
+        @private
+        @augments AeroGear.Notifier.adapters.stompws
+     */
+    this.getChannels = function() {
+        return channels;
+    };
+
+    /**
+        Adds a channel to the set
+        @param {Object} channel - The channel object to add to the set
+        @private
+        @augments AeroGear.Notifier.adapters.stompws
+     */
+    this.addChannel = function( channel ) {
+        channels.push( channel );
+    };
+
+
+    /**
+        Check if subscribed to a channel
+        @param {String} address - The address of the channel object to search for in the set
+        @private
+        @augments AeroGear.Notifier.adapters.stompws
+     */
+    this.getChannelIndex = function( address ) {
+        for ( var i = 0; i < channels.length; i++ ) {
+            if ( channels[ i ].address === address ) {
+                return i;
+            }
         }
+        return -1;
+    };
 
-        settings = settings || {};
-
-        // Private Instance vars
-        var type = "vertx",
-            name = clientName,
-            channels = settings.channels || [],
-            autoConnect = !!settings.autoConnect || channels.length,
-            connectURL = settings.connectURL || "",
-            state = AeroGear.Notifier.CONNECTING,
-            bus = null;
-
-        // Privileged methods
-        /**
-            Returns the value of the private connectURL var
-            @private
-            @augments vertx
-         */
-        this.getConnectURL = function() {
-            return connectURL;
-        };
-
-        /**
-            Set the value of the private connectURL var
-            @private
-            @augments vertx
-            @param {String} url - New connectURL for this client
-         */
-        this.setConnectURL = function( url ) {
-            connectURL = url;
-        };
-
-        /**
-            Returns the value of the private channels var
-            @private
-            @augments vertx
-         */
-        this.getChannels = function() {
-            return channels;
-        };
-
-        /**
-            Adds a channel to the set
-            @param {Object} channel - The channel object to add to the set
-            @private
-            @augments vertx
-         */
-        this.addChannel = function( channel ) {
-            channels.push( channel );
-        };
-
-        /**
-            Check if subscribed to a channel
-            @param {String} address - The address of the channel object to search for in the set
-            @private
-            @augments vertx
-         */
-        this.getChannelIndex = function( address ) {
-            for ( var i = 0; i < channels.length; i++ ) {
-                if ( channels[ i ].address === address ) {
-                    return i;
-                }
-            }
-            return -1;
-        };
-
-        /**
-            Removes a channel from the set
-            @param {Object} channel - The channel object to remove from the set
-            @private
-            @augments vertx
-         */
-        this.removeChannel = function( channel ) {
-            var index = this.getChannelIndex( channel.address );
-            if ( index >= 0 ) {
-                channels.splice( index, 1 );
-            }
-        };
-
-        /**
-            Returns the value of the private state var
-            @private
-            @augments vertx
-         */
-        this.getState = function() {
-            return state;
-        };
-
-        /**
-            Sets the value of the private state var
-            @private
-            @augments vertx
-         */
-        this.setState = function( newState ) {
-            state = newState;
-        };
-
-        /**
-            Returns the value of the private bus var
-            @private
-            @augments vertx
-         */
-        this.getBus = function() {
-            return bus;
-        };
-
-        /**
-            Sets the value of the private bus var
-            @private
-            @augments vertx
-         */
-        this.setBus = function( newBus ) {
-            bus = newBus;
-        };
-
-        // Handle auto-connect
-        if ( autoConnect || channels.length ) {
-            this.connect({
-                url: connectURL,
-                onConnect: settings.onConnect,
-                onDisconnect: settings.onDisconnect,
-                onConnectError: settings.onConnectError
-            });
+    /**
+        Removes a channel from the set
+        @param {Object} channel - The channel object to remove from the set
+        @private
+        @augments AeroGear.Notifier.adapters.stompws
+     */
+    this.removeChannel = function( channel ) {
+        var index = this.getChannelIndex( channel.address );
+        if ( index >= 0 ) {
+            channels.splice( index, 1 );
         }
     };
 
-    //Public Methods
     /**
-        Connect the client to the messaging service
-        @param {Object} [options={}] - Options to pass to the connect method
-        @param {String} [options.url] - The URL for the messaging service. This url will override and reset any connectURL specified when the client was created.
-        @param {Function} [options.onConnect] - callback to be executed when a connection is established
-        @param {Function} [options.onDisconnect] - callback to be executed when a connection is terminated
-        @param {Function} [options.onConnectError] - callback to be executed when connecting to a service is unsuccessful
-        @example
-        // Create an empty Notifier
-        var notifier = AeroGear.Notifier();
-
-        // Add a vertx client
-        notifier.add({
-            name: "client1",
-            settings: {
-                connectURL: window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + "/eventbus",
-                onConnect: function() {
-                    console.log( "connected" );
-                },
-                onConnectError: function() {
-                    console.log( "connection error" );
-                },
-                onDisconnect: function() {
-                    console.log( "Disconnected" );
-                }
-            }
-        });
-
-        // Connect to the vertx messaging service
-        notifierVertx.clients.client1.connect();
-
+        Returns the value of the private state var
+        @private
+        @augments AeroGear.Notifier.adapters.stompws
      */
-    AeroGear.Notifier.adapters.vertx.prototype.connect = function( options ) {
-        options = options || {};
-        var that = this,
-            bus = new VX.EventBus( options.url || this.getConnectURL() );
+    this.getState = function() {
+        return state;
+    };
 
-        bus.onopen = function() {
-            // Make a Copy of the channel array instead of a reference.
+    /**
+        Sets the value of the private state var
+        @private
+        @augments AeroGear.Notifier.adapters.stompws
+     */
+    this.setState = function( newState ) {
+        state = newState;
+    };
+
+    /**
+        Returns the value of the private client var
+        @private
+        @augments AeroGear.Notifier.adapters.stompws
+     */
+    this.getClient = function() {
+        return client;
+    };
+
+    /**
+        Sets the value of the private client var
+        @private
+        @augments AeroGear.Notifier.adapters.stompws
+     */
+    this.setClient = function( newClient ) {
+        client = newClient;
+    };
+
+    // Handle auto-connect.
+    // If Login or Password are needed, autoConnect won't happen
+    if ( ( autoConnect || channels.length ) && ( !settings.login && !settings.password ) ) {
+        this.connect({
+            url: connectURL,
+            onConnect: settings.onConnect,
+            onConnectError: settings.onConnectError
+        });
+    }
+};
+
+//Public Methods
+/**
+    Connect the client to the messaging service
+    @param {Object} [options={}] - Options to pass to the connect method
+    @param {String} [options.login] - login name used to connect to the server
+    @param {String} [options.password] - password used to connect to the server
+    @param {String|Array} [options.protocol="v11.stomp"] - STOMP protocol to use. Can either be a string with a single protocol or an array of protocol strings
+    @param {String} [options.url] - The URL for the messaging service. This url will override and reset any connectURL specified when the client was created.
+    @param {Function} [options.onConnect] - callback to be executed when a connection is established
+    @param {Function} [options.onConnectError] - callback to be executed when connecting to a service is unsuccessful
+    @param {String} [options.host] - name of a virtual host on the stomp server that the client wishes to connect to
+    @example
+    // Create an empty Notifier
+    var notifier = AeroGear.Notifier();
+
+    // Create a channel object and the channel callback function
+    var channelObject = {
+        address: "org.aerogear.messaging.global",
+        callback: channelCallback
+    };
+
+    function channelCallback( message ) {
+        console.log( message );
+    }
+
+    // Add stompws clients
+    notifier.add({
+        name: "client1",
+        type: "stompws"
+        settings: {
+            connectURL: "ws://localhost:61614/stomp",
+            onConnect: function() {
+                console.log( "connected" );
+            },
+            onConnectError: function() {
+                console.log( "connection error" );
+            },
+            channels: [ channelObject ]
+        }
+    },
+    {
+        name: "client2",
+        type: "stompws"
+        settings: {
+            connectURL: "ws://localhost:61614/stomp1",
+            onConnect: function() {
+                console.log( "connected" );
+            },
+            onConnectError: function() {
+                console.log( "connection error" );
+            }
+        }
+    });
+
+    // Connect to the Server with login/password
+    notifier.clients.client1.connect({
+        login: "guest",
+        password: "guest"
+        onConnect: function() {
+            console.log( "connected" );
+        },
+        onConnectError: function( event ) {
+            console.log( "connection error", event );
+        }
+    });
+
+    // Connect to an unsecured Server
+    notifier.clients.client2.connect({
+        onConnect: function() {
+            console.log( "connected" );
+        },
+        onConnectError: function( event ) {
+            console.log( "connection error", event );
+        }
+    });
+ */
+AeroGear.Notifier.adapters.stompws.prototype.connect = function( options ) {
+    options = options || {};
+    var that = this,
+        client = new Stomp.client( options.url || this.getConnectURL(), options.protocol || "v11.stomp" ),
+        onConnect = function() {
+            // Make a copy of the channel array instead of a reference.
             var channels = that.getChannels().slice( 0 );
 
             that.setState( AeroGear.Notifier.CONNECTED );
@@ -2459,611 +3418,417 @@ AeroGear.Auth.adapters.Rest.prototype.logout = function( options ) {
             if ( options.onConnect ) {
                 options.onConnect.apply( this, arguments );
             }
+        },
+        onConnectError = function() {
+            that.setState( AeroGear.Notifier.DISCONNECTED );
+            if ( options.onConnectError ) {
+                options.onConnectError.apply( this, arguments );
+            }
         };
 
-        bus.onclose = function() {
+    client.connect( options.login, options.password, onConnect, onConnectError, options.host );
+    this.setClient( client );
+};
+
+/**
+    Disconnect the client from the messaging service
+    @param {Function} [onDisconnect] - callback to be executed when a connection is terminated
+    @example
+    // Disconnect from the messaging service and pass a function to be called after disconnecting
+    notifier.clients.client2.disconnect({
+        onDisconnect: function() {
+            console.log( "connected" );
+        }
+    });
+
+ */
+AeroGear.Notifier.adapters.stompws.prototype.disconnect = function( onDisconnect ) {
+    var that = this,
+        client = this.getClient(),
+        disconnected = function() {
             if ( that.getState() === AeroGear.Notifier.DISCONNECTING ) {
                 // Fire disconnect as usual
                 that.setState( AeroGear.Notifier.DISCONNECTED );
-                if ( options.onDisconnect ) {
-                    options.onDisconnect.apply( this, arguments );
-                }
-            } else {
-                // Error connecting so fire error callback
-                if ( options.onConnectError ) {
-                    options.onConnectError.apply( this, arguments );
+                if ( onDisconnect ) {
+                    onDisconnect.apply( this, arguments );
                 }
             }
         };
 
-        this.setBus( bus );
-    };
+    if ( this.getState() === AeroGear.Notifier.CONNECTED ) {
+        this.setState( AeroGear.Notifier.DISCONNECTING );
+        client.disconnect( disconnected );
+    }
+};
 
-    /**
-        Disconnect the client from the messaging service
-        @example
-        // Create an empty Notifier
-        var notifier = AeroGear.Notifier();
+/**
+    Subscribe this client to a new channel
+    @param {Object|Array} channels - a channel object or array of channel objects to which this client can subscribe. Each object should have a String address as well as a callback to be executed when a message is received on that channel.
+    @param {Boolean} [reset] - if true, remove all channels from the set and replace with the supplied channel(s)
+    @example
+    // Subscribe to a channel
+    notifier.clients.client2.subscribe({
+        address: "channelAddress",
+        callback: function(){ ... }
+    });
 
-        // Add a vertx client
-        notifier.add({
-            name: "client1",
-            settings: {
-                connectURL: window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + "/eventbus",
-                onConnect: function() {
-                    console.log( "connected" );
-                },
-                onConnectError: function() {
-                    console.log( "connection error" );
-                },
-                onDisconnect: function() {
-                    console.log( "Disconnected" );
-                }
-            }
-        });
-
-        // Connect to the vertx messaging service
-        notifierVertx.clients.client1.connect();
-
-        // Disconnect from the vertx messaging service
-        notifierVertx.clients.client1.disconnect();
-
-     */
-    AeroGear.Notifier.adapters.vertx.prototype.disconnect = function() {
-        var bus = this.getBus();
-        if ( this.getState() === AeroGear.Notifier.CONNECTED ) {
-            this.setState( AeroGear.Notifier.DISCONNECTING );
-            bus.close();
-        }
-    };
-
-    /**
-        Subscribe this client to a new channel
-        @param {Object|Array} channels - a channel object or array of channel objects to which this client can subscribe. Each object should have a String address as well as a callback to be executed when a message is received on that channel.
-        @param {Boolean} [reset] - if true, remove all channels from the set and replace with the supplied channel(s)
-        @example
-        // Create an empty Notifier
-        var notifier = AeroGear.Notifier();
-
-        // Create a channel object and the channel callback function
-        var channelObject = {
-            address: "org.aerogear.messaging.global",
-            callback: channelCallback
-        };
-
-        function channelCallback( message ) {
-            console.log( message );
-        }
-
-        // Add a vertx client with autoConnect === true and no channels
-        notifier.add({
-            name: "client1",
-            settings: {
-                autoConnect: true,
-                connectURL: window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + "/eventbus",
-                onConnect: function() {
-                    console.log( "connected" );
-                },
-                onConnectError: function() {
-                    console.log( "connection error" );
-                },
-                onDisconnect: function() {
-                    console.log( "Disconnected" );
-                }
-            }
-        });
-
-        //Subscribe to a channel
-        notifierVertx.clients.client1.subscribe( channelObject );
-
-        //Subscribe to multiple channels at once
-        notifierVertx.clients.client1.subscribe([
-            {
-                address: "newChannel",
-                callback: function(){...}
-            },
-            {
-                address: "anotherChannel",
-                callback: function(){ ... }
-            }
-        ]);
-
-        //Subscribe to a channel, but first unsubscribe from all currently subscribed channels by adding the reset parameter
-        notifierVertx.clients.client1.subscribe({
-                address: "newChannel",
-                callback: function(){ ... }
-            }, true );
-     */
-    AeroGear.Notifier.adapters.vertx.prototype.subscribe = function( channels, reset ) {
-        var bus = this.getBus();
-
-        if ( reset ) {
-            this.unsubscribe( this.getChannels() );
-        }
-
-        channels = AeroGear.isArray( channels ) ? channels : [ channels ];
-        for ( var i = 0; i < channels.length; i++ ) {
-            this.addChannel( channels[ i ] );
-            bus.registerHandler( channels[ i ].address, channels[ i ].callback );
-        }
-    };
-
-    /**
-        Unsubscribe this client from a channel
-        @param {Object|Array} channels - a channel object or a set of channel objects to which this client nolonger wishes to subscribe
-        @example
-        // Unsubscribe from a previously subscribed channel
-        notifierVertx.clients.client1.unsubscribe(
-            {
-                address: "org.aerogear.messaging.global",
-                callback: channelCallback
-            }
-        );
-
-        // Unsubscribe from multiple channels
-        notifierVertx.clients.client1.unsubscribe([
-            {
-                address: "newChannel",
-                callback: newCallbackFunction
-            },
-            {
-                address: "anotherChannel",
-                callback: "anotherChannelCallbackFunction"
-            }
-        ]);
-
-
-     */
-    AeroGear.Notifier.adapters.vertx.prototype.unsubscribe = function( channels ) {
-        var bus = this.getBus();
-
-        channels = AeroGear.isArray( channels ) ? channels : [ channels ];
-        for ( var i = 0; i < channels.length; i++ ) {
-            this.removeChannel( channels[ i ] );
-            bus.unregisterHandler( channels[ i ].address, channels[ i ].callback );
-        }
-    };
-
-    /**
-        Send a message to a particular channel
-        @param {String} channel - the channel to which to send the message
-        @param {String|Object} [message=""] - the message object to send
-        @example
-        // Send an empty message to a channel
-        notifier.clients.client1.send( "test.address" );
-
-        // Send a "Hello" message to a channel
-        notifier.clients.client1.send( "test.address", "Hello" );
-
-        // Send a "Hello" message as an object
-        notifier.clients.client1.send( "test.address", { "message": "Hello" } );
-
-     */
-    AeroGear.Notifier.adapters.vertx.prototype.send = function( channel, message ) {
-        var bus = this.getBus();
-
-        message = message || "";
-
-        bus.send( channel, message );
-    };
-
-})( AeroGear, vertx );
-
-(function( AeroGear, stomp, undefined ) {
-    /**
-        The stomp adapter uses an underlying stomp.js implementation for messaging.
-        @constructs AeroGear.Notifier.adapters.stompws
-        @param {String} clientName - the name used to reference this particular notifier client
-        @param {Object} [settings={}] - the settings to be passed to the adapter
-        @param {Boolean} [settings.autoConnect=false] - Automatically connect the client to the connectURL on creation IF LOGIN IS NOT NEEDED. This option is ignored and a connection is automatically established if channels are provided as the connection is necessary prior to channel subscription
-        @param {String} [settings.connectURL=""] - defines the URL for connecting to the messaging service
-        @param {Function} [settings.onConnect] - callback to be executed when a connection is established if autoConnect === true
-        @param {Function} [settings.onConnectError] - callback to be executed when connecting to a service is unsuccessful if autoConnect === true
-        @param {Array} [settings.channels=[]] - a set of channel objects to which this client can subscribe. Each object should have a String address as well as a callback to be executed when a message is received on that channel.
-        @returns {Object} The created notifier client
-        @example
-        // Create an empty Notifier
-        var notifier = AeroGear.Notifier();
-
-        // Create a channel object and the channel callback function
-        var channelObject = {
-            address: "org.aerogear.messaging.global",
-            callback: channelCallback
-        };
-
-        function channelCallback( message ) {
-            console.log( message );
-        }
-
-        // Add a stompws client with all the settings that will autoConnect to the server and subscribe to a channel
-        notifier.add({
-            name: "client1",
-            type: "stompws"
-            settings: {
-                autoConnect: true,
-                connectURL: "ws://localhost:61614/stomp",
-                onConnect: function() {
-                    console.log( "connected" );
-                },
-                onConnectError: function() {
-                    console.log( "connection error" );
-                },
-                channels: [ channelObject ]
-            }
-        });
-     */
-    AeroGear.Notifier.adapters.stompws = function( clientName, settings ) {
-        // Allow instantiation without using new
-        if ( !( this instanceof AeroGear.Notifier.adapters.stompws ) ) {
-            return new AeroGear.Notifier.adapters.stompws( clientName, settings );
-        }
-
-        settings = settings || {};
-
-        // Private Instance vars
-        var type = "stompws",
-            name = clientName,
-            channels = settings.channels || [],
-            autoConnect = !!settings.autoConnect || channels.length,
-            connectURL = settings.connectURL || "",
-            state = AeroGear.Notifier.CONNECTING,
-            client = null;
-
-        // Privileged methods
-        /**
-            Returns the value of the private connectURL var
-            @private
-            @augments AeroGear.Notifier.adapters.stompws
-         */
-        this.getConnectURL = function() {
-            return connectURL;
-        };
-
-        /**
-            Set the value of the private connectURL var
-            @private
-            @augments AeroGear.Notifier.adapters.stompws
-            @param {String} url - New connectURL for this client
-         */
-        this.setConnectURL = function( url ) {
-            connectURL = url;
-        };
-
-        /**
-            Returns the value of the private channels var
-            @private
-            @augments AeroGear.Notifier.adapters.stompws
-         */
-        this.getChannels = function() {
-            return channels;
-        };
-
-        /**
-            Adds a channel to the set
-            @param {Object} channel - The channel object to add to the set
-            @private
-            @augments AeroGear.Notifier.adapters.stompws
-         */
-        this.addChannel = function( channel ) {
-            channels.push( channel );
-        };
-
-
-        /**
-            Check if subscribed to a channel
-            @param {String} address - The address of the channel object to search for in the set
-            @private
-            @augments AeroGear.Notifier.adapters.stompws
-         */
-        this.getChannelIndex = function( address ) {
-            for ( var i = 0; i < channels.length; i++ ) {
-                if ( channels[ i ].address === address ) {
-                    return i;
-                }
-            }
-            return -1;
-        };
-
-        /**
-            Removes a channel from the set
-            @param {Object} channel - The channel object to remove from the set
-            @private
-            @augments AeroGear.Notifier.adapters.stompws
-         */
-        this.removeChannel = function( channel ) {
-            var index = this.getChannelIndex( channel.address );
-            if ( index >= 0 ) {
-                channels.splice( index, 1 );
-            }
-        };
-
-        /**
-            Returns the value of the private state var
-            @private
-            @augments AeroGear.Notifier.adapters.stompws
-         */
-        this.getState = function() {
-            return state;
-        };
-
-        /**
-            Sets the value of the private state var
-            @private
-            @augments AeroGear.Notifier.adapters.stompws
-         */
-        this.setState = function( newState ) {
-            state = newState;
-        };
-
-        /**
-            Returns the value of the private client var
-            @private
-            @augments AeroGear.Notifier.adapters.stompws
-         */
-        this.getClient = function() {
-            return client;
-        };
-
-        /**
-            Sets the value of the private client var
-            @private
-            @augments AeroGear.Notifier.adapters.stompws
-         */
-        this.setClient = function( newClient ) {
-            client = newClient;
-        };
-
-        // Handle auto-connect.
-        // If Login or Password are needed, autoConnect won't happen
-        if ( ( autoConnect || channels.length ) && ( !settings.login && !settings.password ) ) {
-            this.connect({
-                url: connectURL,
-                onConnect: settings.onConnect,
-                onConnectError: settings.onConnectError
-            });
-        }
-    };
-
-    //Public Methods
-    /**
-        Connect the client to the messaging service
-        @param {Object} [options={}] - Options to pass to the connect method
-        @param {String} [options.login] - login name used to connect to the server
-        @param {String} [options.password] - password used to connect to the server
-        @param {String|Array} [options.protocol="v11.stomp"] - STOMP protocol to use. Can either be a string with a single protocol or an array of protocol strings
-        @param {String} [options.url] - The URL for the messaging service. This url will override and reset any connectURL specified when the client was created.
-        @param {Function} [options.onConnect] - callback to be executed when a connection is established
-        @param {Function} [options.onConnectError] - callback to be executed when connecting to a service is unsuccessful
-        @param {String} [options.host] - name of a virtual host on the stomp server that the client wishes to connect to
-        @example
-        // Create an empty Notifier
-        var notifier = AeroGear.Notifier();
-
-        // Create a channel object and the channel callback function
-        var channelObject = {
-            address: "org.aerogear.messaging.global",
-            callback: channelCallback
-        };
-
-        function channelCallback( message ) {
-            console.log( message );
-        }
-
-        // Add stompws clients
-        notifier.add({
-            name: "client1",
-            type: "stompws"
-            settings: {
-                connectURL: "ws://localhost:61614/stomp",
-                onConnect: function() {
-                    console.log( "connected" );
-                },
-                onConnectError: function() {
-                    console.log( "connection error" );
-                },
-                channels: [ channelObject ]
-            }
+    //Subscribe to multiple channels
+    notifier.clients.client2.subscribe([
+        {
+            address: "channelAddress1",
+            callback: function(){ ... }
         },
         {
-            name: "client2",
-            type: "stompws"
-            settings: {
-                connectURL: "ws://localhost:61614/stomp1",
-                onConnect: function() {
-                    console.log( "connected" );
+            address: "channelAddress2",
+            callback: function(){ ... }
+        },
+    ]);
+
+    // Subscribe to a channel, but first unsubscribe from all currently subscribed channels by adding the reset parameter
+    notifier.clients.client2.subscribe({
+        address: "channelAddress3",
+        callback: function(){ ... }
+    }, true );
+
+ */
+AeroGear.Notifier.adapters.stompws.prototype.subscribe = function( channels, reset ) {
+    var client = this.getClient();
+
+    if ( reset ) {
+        this.unsubscribe( this.getChannels() );
+    }
+
+    channels = AeroGear.isArray( channels ) ? channels : [ channels ];
+    for ( var i = 0; i < channels.length; i++ ) {
+        channels[ i ].id = client.subscribe( channels[ i ].address, channels[ i ].callback );
+        this.addChannel( channels[ i ] );
+    }
+};
+
+/**
+    Unsubscribe this client from a channel
+    @param {Object|Array} channels - a channel object or a set of channel objects to which this client nolonger wishes to subscribe
+    @example
+    // Unsubscribe from a channel
+    notifier.clients.client2.unsubscribe({
+        address: "channelAddress",
+        callback: function(){ ... }
+    });
+
+    //Unsubscribe from multiple channels
+    notifier.clients.client2.unsubscribe([
+        {
+            address: "channelAddress1",
+            callback: function(){ ... }
+        },
+        {
+            address: "channelAddress2",
+            callback: function(){ ... }
+        },
+    ]);
+ */
+AeroGear.Notifier.adapters.stompws.prototype.unsubscribe = function( channels ) {
+    var client = this.getClient();
+
+    channels = AeroGear.isArray( channels ) ? channels : [ channels ];
+    for ( var i = 0; i < channels.length; i++ ) {
+        client.unsubscribe( channels[ i ].id );
+        this.removeChannel( channels[ i ] );
+    }
+};
+
+/**
+    Send a message to a particular channel
+    @param {String} channel - the channel to which to send the message
+    @param {String|Object} [message=""] - the message object to send
+    @example
+    // Send an empty message to a channel
+    notifier.clients.client2.send( "jms.topic.chat" );
+
+    // Send a "Hello" message to a channel
+    notifier.clients.client2.send( "jms.topic.chat", "Hello" );
+
+    // Send a "Hello" message as an object,  requires headers( can just be an empty object )
+    notifier.clients.client2.send( "jms.topic.chat", { "headers": {}, "body": "Hello" } );
+
+    // Send a "Hello" message as an object,  with non empty headers
+    notifier.clients.client2.send( "jms.topic.chat", { "headers": { priority: 9 }, "body": "Hello" } );
+
+ */
+AeroGear.Notifier.adapters.stompws.prototype.send = function( channel, message ) {
+    var headers = {},
+        client = this.getClient();
+
+    message = message || "";
+    if ( message.headers ) {
+        headers = message.headers;
+        message = message.body;
+    }
+
+    client.send( channel, headers, message );
+};
+
+(function( AeroGear, $, undefined ) {
+    /**
+        The UnifiedPushClient object is used to perfom register and unregister operations against the AeroGear UnifiedPush server.
+        @status Experimental
+        @constructs AeroGear.UnifiedPushClient
+        @param {String} variantID - the id representing the mobile application variant
+        @param {String} variantSecret - the secret for the mobile application variant
+        @param {String} pushServerURL - the location of the UnifiedPush server
+        @returns {Object} The created unified push server client
+        @example
+        //Create the UnifiedPush client object:
+        var client = AeroGear.UnifiedPushClient(
+            "myVariantID",
+            "myVariantSecret",
+            "http://SERVER:PORT/CONTEXT/rest/registry/device"
+        );
+
+        // assemble the metadata for the registration:
+        var metadata = {
+            deviceToken: "theDeviceToken",
+            alias: "some_username",
+            category: "email",
+            simplePushEndpoint: "http://server.com/simplePushEndpoint"
+        };
+
+        // perform the registration against the UnifiedPush server:
+        client.registerWithPushServer(metadata);
+
+     */
+    AeroGear.UnifiedPushClient = function( variantID, variantSecret, pushServerURL ) {
+
+        // we require all arguments to be present, otherwise it does not work
+        if ( !variantID || !variantSecret || !pushServerURL ) {
+            throw "UnifiedPushClientException";
+        }
+
+        // Allow instantiation without using new
+        if ( !( this instanceof AeroGear.UnifiedPushClient ) ) {
+            return new AeroGear.UnifiedPushClient( variantID, variantSecret, pushServerURL );
+        }
+
+        /**
+            Performs a register request against the UnifiedPush Server using the given metadata which represents a client that wants to register with the server.
+            @param {Object} metadata - the metadata for the client
+            @param {String} metadata.deviceToken - identifies the client within its PushNetwork. On Android this is the registrationID, on iOS this is the deviceToken and on SimplePush this is the channelID of the subscribed channel.
+            @param {String} metadata.simplePushEndpoint - the URL of the given SimplePush server/network that is needed in order to trigger a notification to be sent to the SimplePush client.
+            @param {String} [metadata.alias] - Application specific alias to identify users with the system. Common use case would be an email address or a username.
+            @param {String} [metadata.category] - In SimplePush this is the name of the registration endpoint. On Hybrid platforms like Apache Cordova this is used for tagging the registered client.
+            @param {String} [metadata.operatingSystem] - Useful on Hybrid platforms like Apache Cordova to specifiy the underlying operating system.
+            @param {String} [metadata.osVersion] - Useful on Hybrid platforms like Apache Cordova to specify the version of the underlying operating system.
+            @param {String} [metadata.deviceType] - Useful on Hybrid platforms like Apache Cordova to specify the type of the used device, like iPad or Android-Phone.
+         */
+        this.registerWithPushServer = function( metadata ) {
+
+            // we need a deviceToken, registrationID or a channelID:
+            if ( !metadata.deviceToken ) {
+                throw "UnifiedPushRegistrationException";
+            }
+
+            // if we see a category that is not the (SimplePush) broadcast, we require the alias to be present:
+            if ( metadata.category !== "broadcast" && !metadata.alias ) {
+                throw "UnifiedPushRegistrationException";
+            }
+
+            $.ajax({
+                contentType: "application/json",
+                dataType: "json",
+                type: "POST",
+                url: pushServerURL,
+                headers: {
+                    "Authorization": "Basic " + window.btoa(variantID + ":" + variantSecret)
                 },
-                onConnectError: function() {
-                    console.log( "connection error" );
-                }
-            }
-        });
+                data: JSON.stringify( metadata )
+            });
+        };
 
-        // Connect to the Server with login/password
-        notifier.clients.client1.connect({
-            login: "guest",
-            password: "guest"
-            onConnect: function() {
-                console.log( "connected" );
-            },
-            onConnectError: function( event ) {
-                console.log( "connection error", event );
-            }
-        });
-
-        // Connect to an unsecured Server
-        notifier.clients.client2.connect({
-            onConnect: function() {
-                console.log( "connected" );
-            },
-            onConnectError: function( event ) {
-                console.log( "connection error", event );
-            }
-        });
-     */
-    AeroGear.Notifier.adapters.stompws.prototype.connect = function( options ) {
-        options = options || {};
-        var that = this,
-            client = new stomp.client( options.url || this.getConnectURL(), options.protocol || "v11.stomp" ),
-            onConnect = function() {
-                // Make a copy of the channel array instead of a reference.
-                var channels = that.getChannels().slice( 0 );
-
-                that.setState( AeroGear.Notifier.CONNECTED );
-
-                that.subscribe( channels, true );
-
-                if ( options.onConnect ) {
-                    options.onConnect.apply( this, arguments );
-                }
-            },
-            onConnectError = function() {
-                that.setState( AeroGear.Notifier.DISCONNECTED );
-                if ( options.onConnectError ) {
-                    options.onConnectError.apply( this, arguments );
-                }
-            };
-
-        client.connect( options.login, options.password, onConnect, onConnectError, options.host );
-        this.setClient( client );
+        /**
+            Performs an unregister request against the UnifiedPush Server for the given deviceToken. The deviceToken identifies the client within its PushNetwork. On Android this is the registrationID, on iOS this is the deviceToken and on SimplePush this is the channelID of the subscribed channel.
+            @param {String} deviceToken - unique String which identifies the client that is being unregistered.
+         */
+        this.unregisterWithPushServer = function( deviceToken ) {
+            $.ajax({
+                contentType: "application/json",
+                dataType: "json",
+                type: "DELETE",
+                url: pushServerURL + "/" + deviceToken,
+                headers: {
+                    "Authorization": "Basic " + window.btoa(variantID + ":" + variantSecret)
+                },
+                data: JSON.stringify({
+                    deviceToken: deviceToken
+                })
+            });
+        };
     };
 
-    /**
-        Disconnect the client from the messaging service
-        @param {Function} [onDisconnect] - callback to be executed when a connection is terminated
-        @example
-        // Disconnect from the messaging service and pass a function to be called after disconnecting
-        notifier.clients.client2.disconnect({
-            onDisconnect: function() {
-                console.log( "connected" );
-            }
-        });
+})( AeroGear, jQuery );
 
+(function( AeroGear, $, undefined ) {
+    /**
+        The SimplePushClient object is used as a sort of polyfill/implementation of the SimplePush spec implemented in Firefox OS and the Firefox browser and provides a mechanism for subscribing to and acting on push notifications in a web application. See https://wiki.mozilla.org/WebAPI/SimplePush
+        @status Experimental
+        @constructs AeroGear.SimplePushClient
+        @param {Object} options - an object used to initialize the connection to the SimplePush server
+        @param {Boolean} [options.useNative=false] - if true, the connection will first try to use the Mozilla push network (still in development and not ready for production) before falling back to the SimplePush server specified
+        @param {String} [options.simplePushServerURL] - the URL of the SimplePush server. This option is optional but only if you don't want to support browsers that are missing websocket support and you trust the not yet production ready Mozilla push server.
+        @param {Function} options.onConnect - a callback to fire when a connection is established with the SimplePush server. This is a deviation from the SimplePush spec as it is not necessary when you using the in browser functionality since the browser establishes the connection before the application is started.
+        @param {Function} options.onClose - a callback to fire when a connection to the SimplePush server is closed or lost.
+        @returns {Object} The created unified push server client
+        @example
+        //Create the SimplePushClient object:
+        var client = AeroGear.SimplePushClient({
+            simplePushServerURL: "https://localhost:7777/simplepush",
+            onConnect: myConnectCallback,
+            onClose: myCloseCallback
+        });
      */
-    AeroGear.Notifier.adapters.stompws.prototype.disconnect = function( onDisconnect ) {
-        var that = this,
-            client = this.getClient(),
-            disconnected = function() {
-                if ( that.getState() === AeroGear.Notifier.DISCONNECTING ) {
-                    // Fire disconnect as usual
-                    that.setState( AeroGear.Notifier.DISCONNECTED );
-                    if ( onDisconnect ) {
-                        onDisconnect.apply( this, arguments );
+    AeroGear.SimplePushClient = function( options ) {
+        // Allow instantiation without using new
+        if ( !( this instanceof AeroGear.SimplePushClient ) ) {
+            return new AeroGear.SimplePushClient( options );
+        }
+
+        this.options = options || {};
+
+        // Check for native push support
+        if ( !!navigator.push && this.options.useNative ) {
+            // Browser supports push so let it handle it
+            return;
+        }
+
+        if ( this.options.useNative ) {
+            if ("WebSocket" in window ) {
+                // No native push support but want to use Mozilla servers
+                this.options.simplePushServerURL = "wss://push.services.mozilla.com";
+            } else if ( !this.options.simplePushServerURL ) {
+                // No native push support and no websocket support so can't talk to Mozilla server
+                throw "SimplePushConfigurationError";
+            } else {
+                // No websocket, no native support but SimplePush server specified so try SockJS connection
+                this.options.useNative = false;
+            }
+        }
+
+        var spClient = this,
+            connectOptions = {
+                onConnect: function() {
+                    /**
+                        The window.navigator object
+                        @namespace navigator
+                     */
+
+                    /**
+                        Add the push object to the global navigator object
+                        @status Experimental
+                        @constructs navigator.push
+                     */
+                    navigator.push = (function() {
+                        return {
+                            /**
+                                Register a push notification channel with the SimplePush server
+                                @function
+                                @memberof navigator.push
+                                @returns {Object} - The request object where a connection success callback can be registered
+                                @example
+                                var mailRequest = navigator.push.register();
+                             */
+                            register: function() {
+                                var request = {
+                                    onsuccess: function( event ) {}
+                                };
+
+                                if ( !spClient.simpleNotifier ) {
+                                    throw "SimplePushConnectionError";
+                                }
+
+                                spClient.simpleNotifier.subscribe({
+                                    requestObject: request,
+                                    callback: function( message ) {
+                                        $( navigator.push ).trigger({
+                                            type: "push",
+                                            message: message
+                                        });
+                                    }
+                                });
+
+                                return request;
+                            },
+
+                            /**
+                                Unregister a push notification channel from the SimplePush server
+                                @function
+                                @memberof navigator.push
+                                @example
+                                navigator.push.unregister( mailEndpoint );
+                             */
+                            unregister: function( endpoint ) {
+                                spClient.simpleNotifier.unsubscribe( endpoint );
+                            },
+
+                            /**
+                                Reestablish the connection with the SimplePush server when closed or lost. This is an addition and not part of the SimplePush spec
+                                @function
+                                @memberof navigator.push
+                                @param {Object} options - an object used to initialize the connection to the SimplePush server
+                                @param {String} options.simplePushServerURL - the URL of the SimplePush server
+                                @param {Function} options.onConnect - a callback to fire when a connection is established with the SimplePush server. This is a deviation from the SimplePush spec as it is not necessary when you using the in browser functionality since the browser establishes the connection before the application is started.
+                                @param {Function} options.onClose - a callback to fire when a connection to the SimplePush server is closed or lost.
+                                @example
+                                navigator.push.reconnect({
+                                    simplePushServerURL: "https://localhost:7777/simplepush",
+                                    onConnect: myConnectCallback,
+                                    onClose: myCloseCallback
+                                });
+                             */
+                            reconnect: function() {
+                                spClient.simpleNotifier.connect( connectOptions );
+                            }
+                        };
+                    })();
+
+                    /**
+                        Add the setMessageHandler function to the global navigator object
+                        @status Experimental
+                        @constructs navigator.setMessageHandler
+                        @param {String} messageType - a name or category to give the messages being received and in this implementation, likely 'push'
+                        @param {Function} callback - the function to be called when a message of this type is received
+                        @example
+                        navigator.setMessageHandler( "push", function( message ) {
+                            if ( message.channelID === mailEndpoint.channelID ) {
+                                console.log("Mail Message Received");
+                            }
+                        });
+                     */
+                    navigator.setMessageHandler = function( messageType, callback ) {
+                        $( navigator.push ).on( messageType, function( event ) {
+                            var message = event.message;
+                            callback.call( this, message );
+                        });
+                    };
+
+                    if ( spClient.options.onConnect ) {
+                        spClient.options.onConnect();
                     }
+                },
+                onClose: function() {
+                    spClient.simpleNotifier.disconnect( spClient.options.onClose );
                 }
             };
 
-        if ( this.getState() === AeroGear.Notifier.CONNECTED ) {
-            this.setState( AeroGear.Notifier.DISCONNECTING );
-            client.disconnect( disconnected );
-        }
+        // Create a Notifier connection to the Push Network
+        spClient.simpleNotifier = AeroGear.Notifier({
+            name: "agPushNetwork",
+            type: "SimplePush",
+            settings: {
+                connectURL: spClient.options.simplePushServerURL,
+                useNative: spClient.options.useNative
+            }
+        }).clients.agPushNetwork;
+
+        spClient.simpleNotifier.connect( connectOptions );
     };
-
-    /**
-        Subscribe this client to a new channel
-        @param {Object|Array} channels - a channel object or array of channel objects to which this client can subscribe. Each object should have a String address as well as a callback to be executed when a message is received on that channel.
-        @param {Boolean} [reset] - if true, remove all channels from the set and replace with the supplied channel(s)
-        @example
-        // Subscribe to a channel
-        notifier.clients.client2.subscribe({
-            address: "channelAddress",
-            callback: function(){ ... }
-        });
-
-        //Subscribe to multiple channels
-        notifier.clients.client2.subscribe([
-            {
-                address: "channelAddress1",
-                callback: function(){ ... }
-            },
-            {
-                address: "channelAddress2",
-                callback: function(){ ... }
-            },
-        ]);
-
-        // Subscribe to a channel, but first unsubscribe from all currently subscribed channels by adding the reset parameter
-        notifier.clients.client2.subscribe({
-            address: "channelAddress3",
-            callback: function(){ ... }
-        }, true );
-
-     */
-    AeroGear.Notifier.adapters.stompws.prototype.subscribe = function( channels, reset ) {
-        var client = this.getClient();
-
-        if ( reset ) {
-            this.unsubscribe( this.getChannels() );
-        }
-
-        channels = AeroGear.isArray( channels ) ? channels : [ channels ];
-        for ( var i = 0; i < channels.length; i++ ) {
-            channels[ i ].id = client.subscribe( channels[ i ].address, channels[ i ].callback );
-            this.addChannel( channels[ i ] );
-        }
-    };
-
-    /**
-        Unsubscribe this client from a channel
-        @param {Object|Array} channels - a channel object or a set of channel objects to which this client nolonger wishes to subscribe
-        @example
-        // Unsubscribe from a channel
-        notifier.clients.client2.unsubscribe({
-            address: "channelAddress",
-            callback: function(){ ... }
-        });
-
-        //Unsubscribe from multiple channels
-        notifier.clients.client2.unsubscribe([
-            {
-                address: "channelAddress1",
-                callback: function(){ ... }
-            },
-            {
-                address: "channelAddress2",
-                callback: function(){ ... }
-            },
-        ]);
-     */
-    AeroGear.Notifier.adapters.stompws.prototype.unsubscribe = function( channels ) {
-        var client = this.getClient();
-
-        channels = AeroGear.isArray( channels ) ? channels : [ channels ];
-        for ( var i = 0; i < channels.length; i++ ) {
-            client.unsubscribe( channels[ i ].id );
-            this.removeChannel( channels[ i ] );
-        }
-    };
-
-    /**
-        Send a message to a particular channel
-        @param {String} channel - the channel to which to send the message
-        @param {String|Object} [message=""] - the message object to send
-        @example
-        // Send an empty message to a channel
-        notifier.clients.client2.send( "jms.topic.chat" );
-
-        // Send a "Hello" message to a channel
-        notifier.clients.client2.send( "jms.topic.chat", "Hello" );
-
-        // Send a "Hello" message as an object,  requires headers( can just be an empty object )
-        notifier.clients.client2.send( "jms.topic.chat", { "headers": {}, "body": "Hello" } );
-
-        // Send a "Hello" message as an object,  with non empty headers
-        notifier.clients.client2.send( "jms.topic.chat", { "headers": { priority: 9 }, "body": "Hello" } );
-
-     */
-    AeroGear.Notifier.adapters.stompws.prototype.send = function( channel, message ) {
-        var headers = {},
-            client = this.getClient();
-
-        message = message || "";
-        if ( message.headers ) {
-            headers = message.headers;
-            message = message.body;
-        }
-
-        client.send( channel, headers, message );
-    };
-
-})( AeroGear, Stomp );
+})( AeroGear, jQuery );
 })( this );
