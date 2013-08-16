@@ -32,6 +32,15 @@ module.exports = function(grunt) {
                     ],
                     "--web-security": false
                 }
+            },
+            simplepush: {
+                files: [],
+                options: {
+                    urls: [
+                        'http://localhost:<%= connect.server.options.port %>/tests/simplepush/simplepush.html'
+                    ],
+                    "--web-security": false
+                }
             }
         },
         jshint: {
@@ -52,4 +61,5 @@ module.exports = function(grunt) {
     // Default task
     grunt.registerTask('integration-vertx', ['connect', 'jshint', 'qunit:vertx']);
     grunt.registerTask('integration-activemq', ['connect', 'jshint', 'qunit:activemq']);
+    grunt.registerTask('integration-simplepush', ['connect', 'jshint', 'qunit:simplepush']);
 };
