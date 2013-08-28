@@ -15,6 +15,18 @@ module.exports = function(grunt) {
             }
         },
         qunit: {
+            jbossas: {
+                files: [],
+                options: {
+                    urls: [
+                        "http://localhost:<%= connect.server.options.port %>/tests/pipeline/cors-jsonp/insecure-endpoint-tests.html",
+                        "http://localhost:<%= connect.server.options.port %>/tests/pipeline/cors-jsonp/secure-endpoint-tests.html"
+                    ],
+                    "--web-security": false,
+                    "--ssl-protocol": "tlsv1",
+                    "--ignore-ssl-errors": "yes"
+                }
+            },
             vertx: {
                 files: [],
                 options: {
@@ -59,6 +71,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
 
     // Default task
+    grunt.registerTask('integration-jbossas', ['connect', 'jshint', 'qunit:jbossas']);
     grunt.registerTask('integration-vertx', ['connect', 'jshint', 'qunit:vertx']);
     grunt.registerTask('integration-activemq', ['connect', 'jshint', 'qunit:activemq']);
     grunt.registerTask('integration-simplepush', ['connect', 'jshint', 'qunit:simplepush']);
