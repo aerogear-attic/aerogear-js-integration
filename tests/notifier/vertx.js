@@ -28,19 +28,25 @@ asyncTest( "Connect to and Disconnect from vert.x Server", function() {
 module( "Messaging" );
 
 asyncTest( "Subscribe and Send / Recieve Message", function() {
-    expect( 1 );
+    expect( 2 );
 
     vertx.connect({
         onConnect: function() {
             vertx.subscribe({
                 address: "topic.test",
                 callback: function( message ) {
-                    ok( message === "test message", "Test message received" );
-                    vertx.disconnect();
+                    if ( message === "test message" ) {
+                        ok( true, "Test message received" );
+                    }
+                    if ( message === "test publish message" ) {
+                        ok( true, "Test publish message received" );
+                        vertx.disconnect();
+                    }
                 }
             });
 
             vertx.send("topic.test", "test message");
+            vertx.send("topic.test", "test publish message", true);
         },
         onDisconnect: function() {
             start();
