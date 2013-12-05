@@ -1,3 +1,5 @@
 node_modules/
 nohup.out
 vert.x-2.0.0-final/
+target
+aerogear-js-itests-rest-service
