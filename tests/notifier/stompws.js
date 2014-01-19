@@ -27,7 +27,7 @@ asyncTest( "Connect to and Disconnect from STOMP Server", function() {
 module( "Messaging" );
 
 asyncTest( "Subscribe and Send / Receive Message", function() {
-    expect( 3 );
+    expect( 2 );
 
     stomp.connect({
         onConnect: function() {
@@ -36,15 +36,9 @@ asyncTest( "Subscribe and Send / Receive Message", function() {
                 callback: function( message ) {
                     ok( message.body === "test message", "Test message received" );
 
-                    stomp.unsubscribe({ 
-                        address: "/topic/test",
-                        callback: function() {
-                            ok( true, "Unsubscribe was successful" );
-                            stomp.disconnect( function() {
-                                ok( true, "Disconnected" );
-                                start();
-                            });
-                        }
+                    stomp.disconnect( function() {
+                        ok( true, "Disconnected" );
+                        start();
                     });
                 }
             });
