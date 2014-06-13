@@ -19,11 +19,11 @@ if [ -d "$VERTX_PATH" ]; then
 fi
 
 if [ ! -f "$VERTX_PATH.tar.gz" ]; then
-    wget -c $DOWNLOAD_URL -P $BASE_DIR/
+    wget -q -c $DOWNLOAD_URL -P $BASE_DIR/
 fi
 
 if [ -f "$VERTX_PATH.tar.gz" ]; then
-    tar xzvf $VERTX_PATH.tar.gz
+    tar xzf $VERTX_PATH.tar.gz
 else
     echo "The path does not contain a vertx distribution"
 fi
