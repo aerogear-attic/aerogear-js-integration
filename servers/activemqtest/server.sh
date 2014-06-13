@@ -21,12 +21,12 @@ fi
 
 if [ ! -f "$ACTIVEMQ_PATH-bin.tar.gz" ]; then
     echo $DOWNLOAD_URL
-    wget -c $DOWNLOAD_URL -P $BASE_DIR/
+    wget -q -c $DOWNLOAD_URL -P $BASE_DIR/
 fi
 
 if [ -f "$ACTIVEMQ_PATH-bin.tar.gz" ]; then
-    tar xzvf $ACTIVEMQ_PATH-bin.tar.gz
-    tar xzvf $BASE_DIR/conf.tar.gz -C apache-activemq-$ACTIVEMQ_VERSION/
+    tar xzf $ACTIVEMQ_PATH-bin.tar.gz
+    tar xzf $BASE_DIR/conf.tar.gz -C apache-activemq-$ACTIVEMQ_VERSION/
 else
     echo "The path does not contain a activemq distribution"
     exit 3
