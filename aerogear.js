@@ -1,4 +1,4 @@
-/*! AeroGear JavaScript Library - v1.4.0-dev - 2014-02-06
+/*! AeroGear JavaScript Library - v1.4.0-dev - 2014-01-19
 * https://github.com/aerogear/aerogear-js
 * JBoss, Home of Professional Open Source
 * Copyright Red Hat, Inc., and individual contributors
@@ -588,7 +588,7 @@ var pl2 = AeroGear.Pipeline( "tasks" );
 // Create multiple pipes using the default adapter
 var pl3 = AeroGear.Pipeline( [ "tasks", "projects" ] );
 
-// Create a new REST pipe with a custom ID using an object
+//Create a new REST pipe with a custom ID using an object
 var pl4 = AeroGear.Pipeline({
     name: "customPipe",
     type: "rest",
@@ -597,7 +597,7 @@ var pl4 = AeroGear.Pipeline({
     }
 });
 
-// Create multiple REST pipes using objects
+//Create multiple REST pipes using objects
 var pl5 = AeroGear.Pipeline([
     {
         name: "customPipe",
@@ -672,17 +672,17 @@ AeroGear.Pipeline.adapters = {};
     @param {Object} [settings.xhrFields] - specify extra xhr options, like the withCredentials flag
     @returns {Object} The created pipe
     @example
-    // Create an empty pipeline
+    //Create an empty pipeline
     var pipeline = AeroGear.Pipeline();
 
-    // Add a new Pipe with a custom baseURL, custom endpoint and default paging turned on
+    //Add a new Pipe with a custom baseURL, custom endpoint and default paging turned on
     pipeline.add( "customPipe", {
         baseURL: "http://customURL.com",
         endpoint: "customendpoint",
         pageConfig: true
     });
 
-    // Add a new Pipe with a custom paging options
+    //Add a new Pipe with a custom paging options
     pipeline.add( "customPipe", {
         pageConfig: {
             metadataLocation: "header",
@@ -911,7 +911,7 @@ var filteredData = myPipe.read({
 });
 
     @example
-// JSONP - Default JSONP call to a JSONP server
+//JSONP - Default JSONP call to a JSONP server
 myPipe.read({
     jsonp: true,
     success: function( data ){
@@ -919,7 +919,7 @@ myPipe.read({
     }
 });
 
-// JSONP - JSONP call with a changed callback parameter
+//JSONP - JSONP call with a changed callback parameter
 myPipe.read({
     jsonp: {
         callback: "jsonp"
@@ -930,7 +930,7 @@ myPipe.read({
 });
 
     @example
-// Paging - using the default weblinking protocal
+//Paging - using the default weblinking protocal
 var defaultPagingPipe = AeroGear.Pipeline([{
     name: "webLinking",
     settings: {
@@ -939,9 +939,9 @@ var defaultPagingPipe = AeroGear.Pipeline([{
     }
 }]).pipes[0];
 
-// Get a limit of 2 pieces of data from the server, starting from the first page
-// Calling the "next" function will get the next 2 pieces of data, if available.
-// Similarily, calling the "previous" function will get the previous 2 pieces of data, if available
+//Get a limit of 2 pieces of data from the server, starting from the first page
+//Calling the "next" function will get the next 2 pieces of data, if available.
+//Similarily, calling the "previous" function will get the previous 2 pieces of data, if available
 defaultPagingPipe.read({
     offsetValue: 1,
     limitValue: 2,
@@ -957,7 +957,7 @@ defaultPagingPipe.read({
     }
 });
 
-// Create a new Pipe with a custom paging options
+//Create a new Pipe with a custom paging options
 var customPagingPipe = AeroGear.Pipeline([{
     name: "customPipe",
     settings: {
@@ -969,7 +969,7 @@ var customPagingPipe = AeroGear.Pipeline([{
     }
 }]).pipes[0];
 
-// Even with custom options, you use "next" and "previous" the same way
+//Even with custom options, you use "next" and "previous" the same way
 customPagingPipe.read({
     offsetValue: 1,
     limitValue: 2,
@@ -1171,7 +1171,7 @@ AeroGear.Pipeline.adapters.Rest.prototype.save = function( data, options ) {
             formData.append( key, data[ key ] );
 
             if( data[ key ] instanceof File || data[ key ] instanceof Blob ) {
-                // Options to tell jQuery not to process data or worry about content-type.
+                //Options to tell jQuery not to process data or worry about content-type.
                 extraOptions.contentType = false;
                 extraOptions.processData = false;
             }
@@ -1319,14 +1319,14 @@ var dm2 = AeroGear.DataManager( "tasks" );
 // Create multiple stores using the default adapter
 var dm3 = AeroGear.DataManager( [ "tasks", "projects" ] );
 
-// Create a custom store
+//Create a custom store
 var dm3 = AeroGear.DataManager({
     name: "mySessionStorage",
     type: "SessionLocal",
     id: "customID"
 });
 
-// Create multiple custom stores
+//Create multiple custom stores
 var dm4 = AeroGear.DataManager([
     {
         name: "mySessionStorage",
@@ -1371,7 +1371,7 @@ AeroGear.DataManager = function( config ) {
                     if( !( type in AeroGear.DataManager.validAdapters ) ) {
                         for( i = 0; i < preferred.length; i++ ) {
                             if( preferred[ i ] in AeroGear.DataManager.validAdapters ) {
-                                // For Deprecation purposes in 1.3.0  will be removed in 1.4.0
+                                //For Deprecation purposes in 1.3.0  will be removed in 1.4.0
                                 if( type === "IndexedDB" || type === "WebSQL" ) {
                                     value.settings = AeroGear.extend( value.settings || {}, { async: true } );
                                 }
@@ -1388,11 +1388,11 @@ AeroGear.DataManager = function( config ) {
         AeroGear.Core.call( this );
         this.add( config );
 
-        // Put back DataManager.add
+        //Put back DataManager.add
         this.add = this._add;
     };
 
-    // Save a reference to DataManager.add to put back later
+    //Save a reference to DataManager.add to put back later
     this._add = this.add;
 
     /**
@@ -1406,11 +1406,11 @@ AeroGear.DataManager = function( config ) {
         AeroGear.Core.call( this );
         this.remove( config );
 
-        // Put back DataManager.remove
+        //Put back DataManager.remove
         this.remove = this._remove;
     };
 
-    // Save a reference to DataManager.remove to put back later
+    //Save a reference to DataManager.remove to put back later
     this._remove = this.remove;
 
     this.lib = "DataManager";
@@ -1574,10 +1574,10 @@ AeroGear.DataManager.adapters.base = function( storeName, settings ) {
     @param {String} [settings.recordId="id"] - the name of the field used to uniquely identify a "record" in the data
     @returns {Object} The created store
     @example
-// Create an empty DataManager
+//Create an empty DataManager
 var dm = AeroGear.DataManager();
 
-// Add a custom memory store
+//Add a custom memory store
 dm.add( "newStore", {
     recordId: "customID"
 });
@@ -1662,7 +1662,7 @@ AeroGear.DataManager.adapters.Memory = function( storeName, settings ) {
         @augments base
     */
     this.close = function() {
-        // purposefully left empty
+        //purposefully left empty
     };
 
     /**
@@ -1714,7 +1714,7 @@ var dm = AeroGear.DataManager( "tasks" ).stores[ 0 ];
 // Get an array of all data in the store
 var allData = dm.read();
 
-// Read a specific piece of data based on an id
+//Read a specific piece of data based on an id
 var justOne = dm.read( 12345 );
  */
 AeroGear.DataManager.adapters.Memory.prototype.read = function( id, options ) {
@@ -1733,7 +1733,7 @@ AeroGear.DataManager.adapters.Memory.prototype.read = function( id, options ) {
     } else {
         data = this.getData();
     }
-    // data = id ? this.filter( filter ).then( function( data ) {  } ) : this.getData();
+    //data = id ? this.filter( filter ).then( function( data ) {  } ) : this.getData();
     if( async ) {
         deferred.always( this.always );
         return deferred.resolve( data, "success", options ? options.success : undefined );
@@ -1760,7 +1760,7 @@ dm.save({
     ...
 });
 
-// Store an array of new Tasks
+//Store an array of new Tasks
 dm.save([
     {
         title: "Task2",
@@ -1889,7 +1889,7 @@ AeroGear.DataManager.adapters.Memory.prototype.remove = function( toRemove, opti
 
 /**
     Filter the current store's data
-    @param {Object} [filterParameters] - An object containing key/value pairs on which to filter the store's data. To filter a single parameter on multiple values, the value can be an object containing a data key with an Array of values to filter on and its own matchAny key that will override the global matchAny for that specific filter parameter.
+    @param {Object} [filterParameters] - An object containing key value pairs on which to filter the store's data. To filter a single parameter on multiple values, the value can be an object containing a data key with an Array of values to filter on and its own matchAny key that will override the global matchAny for that specific filter parameter.
     @param {Boolean} [matchAny] - When true, an item is included in the output if any of the filter parameters is matched.
     @param {Object} [options={}] - options
     @param {AeroGear~successCallbackMEMORY} [options.success] - a callback to be called after successfully filter data from a Memory Store -  this filter is synchronous but the callback is provided for API symmetry.
@@ -1916,15 +1916,15 @@ AeroGear.DataManager.adapters.Memory.prototype.filter = function( filterParamete
     var filtered, key, j, k, l, nestedKey, nestedFilter, nestedValue,
         that = this,
         deferred = jQuery.Deferred(),
-        async = this.getAsync(); // Added in 1.3.0  Will Be Removed in 1.4.0
+        async = this.getAsync(); //Added in 1.3.0  Will Be Removed in 1.4.0
 
     deferred.always( this.always );
 
     if ( !filterParameters ) {
         filtered = this.getData() || [];
-        // Added in 1.3.0  Will Be Removed in 1.4.0
+        //Added in 1.3.0  Will Be Removed in 1.4.0
         return async ? deferred.resolve( filtered, "success", options ? options.success : undefined ) : filtered;
-        // return deferred.resolve( filtered, "success", options ? options.success : undefined );
+        //return deferred.resolve( filtered, "success", options ? options.success : undefined );
     }
 
     filtered = this.getData().filter( function( value, index, array) {
@@ -2005,12 +2005,12 @@ AeroGear.DataManager.adapters.Memory.prototype.filter = function( filterParamete
                     if( value[ keys[ key ] ].length ) {
                         for(j = 0; j < value[ keys[ key ] ].length; j++ ) {
                             if( matchAny && filterParameters[ keys[ key ] ] === value[ keys[ key ] ][ j ]  ) {
-                                // at least one must match and this one does so return true
+                                //at least one must match and this one does so return true
                                 paramResult = true;
                                 break;
                             }
                             if( !matchAny && filterParameters[ keys[ key ] ] !== value[ keys[ key ] ][ j ] ) {
-                                // All must match but this one doesn't so return false
+                                //All must match but this one doesn't so return false
                                 paramResult = false;
                                 break;
                             }
@@ -2041,9 +2041,9 @@ AeroGear.DataManager.adapters.Memory.prototype.filter = function( filterParamete
 
         return match;
     });
-    // Added in 1.3.0  Will Be Removed in 1.4.0
+    //Added in 1.3.0  Will Be Removed in 1.4.0
     return async ? deferred.resolve( filtered, "success", options ? options.success : undefined ) : filtered;
-    // return deferred.resolve( filtered, "success", options ? options.success : undefined );
+    //return deferred.resolve( filtered, "success", options ? options.success : undefined );
 };
 
 /**
@@ -2067,10 +2067,10 @@ AeroGear.DataManager.validateAdapter( "Memory", AeroGear.DataManager.adapters.Me
     @param {Object} [settings.crypto.options] - the specific options for the AeroGear.Crypto encrypt/decrypt methods
     @returns {Object} The created store
     @example
-// Create an empty DataManager
+//Create an empty DataManager
 var dm = AeroGear.DataManager();
 
-// Add a custom SessionLocal store using local storage as its storage type
+//Add a custom SessionLocal store using local storage as its storage type
 dm.add( "newStore", {
     recordId: "customID",
     storageType: "localStorage"
@@ -2150,7 +2150,7 @@ dm.save({
     ...
 });
 
-// Store an array of new Tasks
+//Store an array of new Tasks
 dm.save([
     {
         title: "Task2",
@@ -2302,10 +2302,10 @@ AeroGear.DataManager.validateAdapter( "SessionLocal", AeroGear.DataManager.adapt
     @param {Object} [settings.crypto.options] - the specific options for the AeroGear.Crypto encrypt/decrypt methods
     @returns {Object} The created store
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an IndexedDB store
+    //Add an IndexedDB store
     dm.add({
         name: "newStore",
         storageType: "IndexedDB"
@@ -2374,7 +2374,7 @@ AeroGear.DataManager.adapters.IndexedDB = function( storeName, settings ) {
     /**
         This function will check if the database is open.
         If 'auto' is not true, an error is thrown.
-        If 'auto' is true, attempt to open the database then
+        If 'auto' is true, attempt to open the databse then
         run the function passed in
         @private
         @augments IndexedDB
@@ -2384,7 +2384,7 @@ AeroGear.DataManager.adapters.IndexedDB = function( storeName, settings ) {
 
         if( !database ) {
             if( !auto ) {
-                // hasn't been opened yet
+                //hasn't been opened yet
                 throw "Database not opened";
             } else {
                 this.open().always( function( value, status ) {
@@ -2416,10 +2416,10 @@ AeroGear.DataManager.adapters.IndexedDB.isValid = function() {
     @param {AeroGear~errorCallbackINDEXEDDB} [settings.error] - a callback to be called when there is an error with the opening of an IndexedDB
     @return {Object} A jQuery.Deferred promise
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an IndexedDB store
+    //Add an IndexedDB store
     dm.add({
         name: "newStore",
         storageType: "IndexedDB"
@@ -2439,7 +2439,7 @@ AeroGear.DataManager.adapters.IndexedDB.prototype.open = function( options ) {
         recordId = this.getRecordId(),
         deferred = jQuery.Deferred();
 
-    // Attempt to open the indexedDB database
+    //Attempt to open the indexedDB database
     request = window.indexedDB.open( storeName );
 
     request.onsuccess = function( event ) {
@@ -2471,10 +2471,10 @@ AeroGear.DataManager.adapters.IndexedDB.prototype.open = function( options ) {
     @param {AeroGear~errorCallbackINDEXEDDB} [options.error] - a callback to be called when there is an error reading an IndexedDB
     @return {Object} A jQuery.Deferred promise
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an IndexedDB store
+    //Add an IndexedDB store
     dm.add({
         name: "newStore",
         storageType: "IndexedDB"
@@ -2490,7 +2490,7 @@ AeroGear.DataManager.adapters.IndexedDB.prototype.open = function( options ) {
         error: function( error ) { ... }
     });
 
-    // read a record with a particular id
+    //read a record with a particular id
     dm.stores.test1.read( 5, {
         success: function( data ) { ... },
         error: function( error ) { ... }
@@ -2558,10 +2558,10 @@ AeroGear.DataManager.adapters.IndexedDB.prototype.read = function( id, options )
     @param {AeroGear~errorCallbackINDEXEDDB} [options.error] - a callback to be called when there is an error with the saving of a record into an IndexedDB
     @return {Object} A jQuery.Deferred promise
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an IndexedDB store
+    //Add an IndexedDB store
     dm.add({
         name: "newStore",
         storageType: "IndexedDB"
@@ -2577,7 +2577,7 @@ AeroGear.DataManager.adapters.IndexedDB.prototype.read = function( id, options )
         error: function( error ) { ... }
     });
 
-    // Save multiple Records
+    //Save multiple Records
     dm.stores.newStore.save(
         [
             { "id": 3, "name": "Grace", "type": "Little Person" },
@@ -2644,10 +2644,10 @@ AeroGear.DataManager.adapters.IndexedDB.prototype.save = function( data, options
     @param {AeroGear~errorCallbackINDEXEDDB} [options.error] - a callback to be called when there is an error removing a record out of an IndexedDB
     @return {Object} A jQuery.Deferred promise
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an IndexedDB store
+    //Add an IndexedDB store
     dm.add({
         name: "newStore",
         storageType: "IndexedDB"
@@ -2664,7 +2664,7 @@ AeroGear.DataManager.adapters.IndexedDB.prototype.save = function( data, options
         error: function( error ) { ... }
     });
 
-    // Remove all data
+    //Remove all data
     dm.stores.newStore.remove( undefined, {
         success: function( data ) { ... },
         error: function( error ) { ... }
@@ -2724,16 +2724,16 @@ AeroGear.DataManager.adapters.IndexedDB.prototype.remove = function( toRemove, o
 
 /**
     Filter the current store's data
-    @param {Object} [filterParameters] - An object containing key/value pairs on which to filter the store's data. To filter a single parameter on multiple values, the value can be an object containing a data key with an Array of values to filter on and its own matchAny key that will override the global matchAny for that specific filter parameter.
+    @param {Object} [filterParameters] - An object containing key value pairs on which to filter the store's data. To filter a single parameter on multiple values, the value can be an object containing a data key with an Array of values to filter on and its own matchAny key that will override the global matchAny for that specific filter parameter.
     @param {Boolean} [matchAny] - When true, an item is included in the output if any of the filter parameters is matched.
     @param {AeroGear~successCallbackINDEXEDDB} [options.success] - a callback to be called after successful filtering of an IndexedDB
-    @param {AeroGear~errorCallbackINDEXEDDB} [options.error] - a callback to be called after an error filtering of an IndexedDB
+    @param {AeroGear~errorCallbackINDEXEDDB} [options.error] - a callback to be calledd after an error filtering of an IndexedDB
     @return {Object} A jQuery.Deferred promise
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an IndexedDB store
+    //Add an IndexedDB store
     dm.add({
         name: "newStore",
         storageType: "IndexedDB"
@@ -2780,10 +2780,10 @@ AeroGear.DataManager.adapters.IndexedDB.prototype.filter = function( filterParam
 /**
     Close the current store
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an IndexedDB store and then delete a record
+    //Add an IndexedDB store and then delete a record
     dm.add({
         name: "newStore",
         storageType: "IndexedDB"
@@ -2817,10 +2817,10 @@ AeroGear.DataManager.validateAdapter( "IndexedDB", AeroGear.DataManager.adapters
     @param {Object} [settings.crypto.options] - the specific options for the AeroGear.Crypto encrypt/decrypt methods
     @returns {Object} The created store
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an WebSQL store
+    //Add an WebSQL store
     dm.add({
         name: "newStore",
         storageType: "WebSQL"
@@ -2899,7 +2899,7 @@ AeroGear.DataManager.adapters.WebSQL = function( storeName, settings ) {
 
         if( !database ) {
             if( !auto ) {
-                // hasn't been opened yet
+                //hasn't been opened yet
                 throw "Database not opened";
             } else {
                 this.open().always( function( value, status ) {
@@ -2931,10 +2931,10 @@ AeroGear.DataManager.adapters.WebSQL.isValid = function() {
     @param {AeroGear~errorCallbackWEBSQL} [settings.error] - a callback to be called when there is an error opening a WebSQL DB
     @return {Object} A jQuery.Deferred promise
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an WebSQL store
+    //Add an WebSQL store
     dm.add({
         name: "newStore",
         storageType: "WebSQL"
@@ -2956,7 +2956,7 @@ AeroGear.DataManager.adapters.WebSQL.prototype.open = function( options ) {
         storeName = this.getStoreName(),
         deferred = jQuery.Deferred();
 
-    // Do some creation and such
+    //Do some creation and such
     database = window.openDatabase( storeName, version, "AeroGear WebSQL Store", databaseSize );
 
     error = function( transaction, error ) {
@@ -2984,10 +2984,10 @@ AeroGear.DataManager.adapters.WebSQL.prototype.open = function( options ) {
     @param {AeroGear~errorCallbackWEBSQL} [options.error] - a callback to be called when there is an error reading a WebSQL DB
     @return {Object} A jQuery.Deferred promise
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an WebSQL store
+    //Add an WebSQL store
     dm.add({
         name: "newStore",
         storageType: "WebSQL"
@@ -3003,7 +3003,7 @@ AeroGear.DataManager.adapters.WebSQL.prototype.open = function( options ) {
         error: function( error ) { ... }
     });
 
-    // read a record with a particular id
+    //read a record with a particular id
     dm.stores.test1.read( 5, {
         success: function( data ) { ... },
         error: function( error ) { ... }
@@ -3016,7 +3016,6 @@ AeroGear.DataManager.adapters.WebSQL.prototype.read = function( id, options ) {
     var success, error, sql, _read,
         that = this,
         data = [],
-        params = [],
         storeName = this.getStoreName(),
         database = this.getDatabase(),
         deferred = jQuery.Deferred(),
@@ -3038,12 +3037,11 @@ AeroGear.DataManager.adapters.WebSQL.prototype.read = function( id, options ) {
         sql = "SELECT * FROM " + storeName;
 
         if( id ) {
-            sql += " WHERE ID = ?";
-            params = [ id ];
+            sql += " WHERE ID = '" + id + "'";
         }
 
         database.transaction( function( transaction ) {
-            transaction.executeSql( sql, params, success, error );
+            transaction.executeSql( sql, [], success, error );
         });
     };
 
@@ -3062,10 +3060,10 @@ AeroGear.DataManager.adapters.WebSQL.prototype.read = function( id, options ) {
     @param {AeroGear~errorCallbackWEBSQL} [options.error] - a callback to be called when there is an error saving records to a WebSQL DB
     @return {Object} A jQuery.Deferred promise
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an WebSQL store
+    //Add an WebSQL store
     dm.add({
         name: "newStore",
         storageType: "WebSQL"
@@ -3081,7 +3079,7 @@ AeroGear.DataManager.adapters.WebSQL.prototype.read = function( id, options ) {
         error: function( error ) { ... }
     });
 
-    // Save multiple Records
+    //Save multiple Records
     dm.stores.newStore.save(
         [
             { "id": 3, "name": "Grace", "type": "Little Person" },
@@ -3146,10 +3144,10 @@ AeroGear.DataManager.adapters.WebSQL.prototype.save = function( data, options ) 
     @param {AeroGear~errorCallbackWEBSQL} [options.error] - a callback to be called when there is an error removing a record from a WebSQL DB
     @return {Object} A jQuery.Deferred promise
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an IndexedDB store
+    //Add an IndexedDB store
     dm.add({
         name: "newStore",
         storageType: "WebSQL"
@@ -3166,7 +3164,7 @@ AeroGear.DataManager.adapters.WebSQL.prototype.save = function( data, options ) 
         error: function( error ) { ... }
     });
 
-    // Remove all data
+    //Remove all data
     dm.stores.newStore.remove( undefined, {
         success: function( data ) { ... },
         error: function( error ) { ... }
@@ -3201,7 +3199,7 @@ AeroGear.DataManager.adapters.WebSQL.prototype.remove = function( toRemove, opti
         sql = "DELETE FROM " + storeName;
 
         if( !toRemove ) {
-            // remove all
+            //remove all
             database.transaction( function( transaction ) {
                 transaction.executeSql( sql, [], success, error );
             });
@@ -3229,16 +3227,16 @@ AeroGear.DataManager.adapters.WebSQL.prototype.remove = function( toRemove, opti
 
 /**
     Filter the current store's data
-    @param {Object} [filterParameters] - An object containing key/value pairs on which to filter the store's data. To filter a single parameter on multiple values, the value can be an object containing a data key with an Array of values to filter on and its own matchAny key that will override the global matchAny for that specific filter parameter.
+    @param {Object} [filterParameters] - An object containing key value pairs on which to filter the store's data. To filter a single parameter on multiple values, the value can be an object containing a data key with an Array of values to filter on and its own matchAny key that will override the global matchAny for that specific filter parameter.
     @param {Boolean} [matchAny] - When true, an item is included in the output if any of the filter parameters is matched.
     @param {AeroGear~successCallbackWEBSQL} [options.success] - a callback to be called after a successful filtering of a WebSQL DB
     @param {AeroGear~errorCallbackWEBSQL} [options.error] - a callback to be calledd after an error filtering a WebSQL DB
     @return {Object} A jQuery.Deferred promise
     @example
-    // Create an empty DataManager
+    //Create an empty DataManager
     var dm = AeroGear.DataManager();
 
-    // Add an IndexedDB store
+    //Add an IndexedDB store
     dm.add({
         name: "newStore",
         storageType: "WebSQL"
@@ -3306,14 +3304,14 @@ var auth2 = AeroGear.Auth( "myAuth" );
 // Create multiple modules using the default adapter
 var auth3 = AeroGear.Auth( [ "someAuth", "anotherAuth" ] );
 
-// Create a single module by passing an object using the default adapter
+//Create a single module by passing an object using the default adapter
 var auth4 = AeroGear.Auth(
     {
         name: "objectAuth"
     }
 );
 
-// Create multiple modules by passing an array of objects using the default adapter
+//Create multiple modules by passing an array of objects using the default adapter
 var auth5 = AeroGear.Auth([
     {
         name: "objectAuth"
@@ -3366,10 +3364,10 @@ AeroGear.Auth.adapters = {};
     @param {Object} [settings.endpoints={}] - a set of REST endpoints that correspond to the different public methods including enroll, login and logout
     @returns {Object} The created auth module
     @example
-// Create an empty Authenticator
+//Create an empty Authenticator
 var auth = AeroGear.Auth();
 
-// Add a custom REST module to it
+//Add a custom REST module to it
 auth.add( {
     name: "module1",
     settings: {
@@ -3377,7 +3375,7 @@ auth.add( {
     }
 });
 
-// Add a custom REST module to it with custom security endpoints
+//Add a custom REST module to it with custom security endpoints
 auth.add( {
     name: "module2",
     settings: {
@@ -3470,7 +3468,7 @@ AeroGear.Auth.adapters.Rest = function( moduleName, settings ) {
      };
 };
 
-// Public Methods
+//Public Methods
 /**
     Enroll a new user in the authentication system
     @param {Object} data - User profile to enroll
@@ -3490,7 +3488,7 @@ var auth = AeroGear.Auth( "userAuth" ).modules.userAuth,
 // Enroll a new user
 auth.enroll( data );
 
-// Add a custom REST module to it with custom security endpoints
+//Add a custom REST module to it with custom security endpoints
 var custom = AeroGear.Auth({
     name: "customModule",
     settings: {
@@ -3557,7 +3555,7 @@ AeroGear.Auth.adapters.Rest.prototype.enroll = function( data, options ) {
 
 /**
     Authenticate a user
-    @param {Object} data - A set of key/value pairs representing the user's credentials
+    @param {Object} data - A set of key value pairs representing the user's credentials
     @param {Object} [options={}] - An object containing key/value pairs representing options
     @param {String} [options.baseURL] - defines the base URL to use for an endpoint
     @param {String} [options.contentType] - set the content type for the AJAX request
@@ -3573,7 +3571,7 @@ var auth = AeroGear.Auth( "userAuth" ).modules.userAuth,
 // Enroll a new user
 auth.login( data );
 
-// Add a custom REST module to it with custom security endpoints
+//Add a custom REST module to it with custom security endpoints
 var custom = AeroGear.Auth({
     name: "customModule",
     settings: {
@@ -3652,7 +3650,7 @@ var auth = AeroGear.Auth( "userAuth" ).modules.userAuth;
 // Enroll a new user
 auth.logout();
 
-    // Add a custom REST module to it with custom security endpoints
+    //Add a custom REST module to it with custom security endpoints
 var custom = AeroGear.Auth({
     name: "customModule",
     settings: {
@@ -3758,7 +3756,6 @@ AeroGear.Authorization.adapters = {};
 
 /**
     The OAuth2 adapter is the default type used when creating a new authorization module. It uses jQuery.ajax to communicate with the server.
-    While this library can be used "standalone", we recommend using it with Pipeline to get the most benefit
     This constructor is instantiated when the "Authorizer.add()" method is called
     @status Experimental
     @constructs AeroGear.Authorization.adapters.OAuth2
@@ -3771,7 +3768,7 @@ AeroGear.Authorization.adapters = {};
     @param {String} settings.scopes - a space separated list of "scopes" or things you want to access
     @returns {Object} The created authz module
     @example
-    // Create an empty Authenticator
+    //Create an empty Authenticator
     var authz = AeroGear.Authorization();
 
     authz.add({
@@ -3874,7 +3871,7 @@ AeroGear.Authorization.adapters.OAuth2 = function( name, settings ) {
         @augments OAuth2
      */
     this.parseQueryString = function( locationString ) {
-        // taken from https://developers.google.com/accounts/docs/OAuth2Login
+        //taken from https://developers.google.com/accounts/docs/OAuth2Login
         // First, parse the query string
         var params = {},
             queryString = locationString.substr( locationString.indexOf( "#" ) + 1 ),
@@ -3887,15 +3884,16 @@ AeroGear.Authorization.adapters.OAuth2 = function( name, settings ) {
     };
 };
 
+//Takes the querystring that is returned after the "dance" unparsed.
 /**
-    Validate the Authorization endpoints - Takes the querystring that is returned after the "dance" unparsed.
+    Enroll a new user in the authentication system
     @param {String} queryString - The returned query string to be parsed
     @param {Object} [options={}] - Options to pass to the enroll method
     @param {AeroGear~errorCallbackREST} [options.error] - callback to be executed if the AJAX request results in an error
     @param {AeroGear~successCallbackREST} [options.success] - callback to be executed if the AJAX request results in success
     @returns {Object} The jqXHR created by jQuery.ajax
     @example
-    // Create the Authorizer
+    //Create the Authorizer
     var authz = AeroGear.Authorization(),
         pipe;
 
@@ -3909,10 +3907,10 @@ AeroGear.Authorization.adapters.OAuth2 = function( name, settings ) {
         }
     });
 
-    // Create a new Pipeline with an authorizer
+    //Create a new Pipeline with an authorizer
     pipe = AeroGear.Pipeline( { authorizer: authz.services.coolThing } );
 
-    // Add a pipe
+    //Add a pipe
     pipe.add([
     {
         name: "cal",
@@ -3923,17 +3921,17 @@ AeroGear.Authorization.adapters.OAuth2 = function( name, settings ) {
     }
     ]);
 
-    // Make the call. OAuth2.read() will be called by Pipe.Read
+    //Make the call. OAuth2.read() will be called by Pipe.Read
     pipe.pipes.cal.read({
         success:function( response ) {
             ....
         },
         error: function( error ) {
-            // an error happened, so take the authURL and do the "OAuth2 Dance",
+            //an error happened, so take the authURL and do the "OAuth2 Dance",
         }
     });
 
-    // After a successful response from the "OAuth2 Dance", validate that the query string is valid, If all is well, the access_token will be stored.
+    //After a successful response from the "OAuth2 Dance", validate that the query string is valid, If all is well, the access_token will be stored.
     authz.services.coolThing.validate( responseFromAuthEndpoint, {
         success: function( response ){
             ...
@@ -3943,10 +3941,10 @@ AeroGear.Authorization.adapters.OAuth2 = function( name, settings ) {
         }
     });
 
-    // Make pipe.read calls
+    //Make pipe.read calls
     pipe.pipes.cal.read({
         success:function( response ) {
-            // Should be success calls
+            //Should be success calls
         },
         error: function( error ) {
             ....
@@ -3964,7 +3962,7 @@ AeroGear.Authorization.adapters.OAuth2.prototype.validate = function( queryStrin
         success;
 
     success = function( response ) {
-        // Perhaps we can use crypt here to be more secure
+        //Perhaps we can use crypt here to be more secure
         localStorage.setItem( that.getLocalStorageName(), JSON.stringify( { "accessToken": parsedQuery.access_token } ) );
         if( options.success ) {
             options.success.apply( this, arguments );
@@ -3982,9 +3980,9 @@ AeroGear.Authorization.adapters.OAuth2.prototype.validate = function( queryStrin
         return;
     }
 
-    // Make sure that the "state" value returned is the same one we sent
+    //Make sure that the "state" value returned is the same one we sent
     if( parsedQuery.state !== state ) {
-        // No Good
+        //No Good
         error.call( this, { error: "invalid_request", state: state, error_description: "state's do not match"  } );
         return;
     }
@@ -4018,7 +4016,7 @@ AeroGear.Authorization.adapters.OAuth2.prototype.validate = function( queryStrin
     @param {AeroGear~successCallbackREST} [options.success] - callback to be executed if the AJAX request results in success
     @returns {Object} The jqXHR created by jQuery.ajax - IF an error is returned,  the authentication URL will be appended to the response object
     @example
-    // Create the Authorizer
+    //Create the Authorizer
     var authz = AeroGear.Authorization(),
     pipe;
 
@@ -4032,10 +4030,10 @@ AeroGear.Authorization.adapters.OAuth2.prototype.validate = function( queryStrin
     }
     });
 
-    // Create a new Pipeline with an authorizer
+    //Create a new Pipeline with an authorizer
     pipe = AeroGear.Pipeline( { authorizer: authz.services.coolThing } );
 
-    // Add a pipe
+    //Add a pipe
     pipe.add([
     {
         name: "cal",
@@ -4046,7 +4044,7 @@ AeroGear.Authorization.adapters.OAuth2.prototype.validate = function( queryStrin
     }
     ]);
 
-    // Make the call. OAuth2.read() will be called by Pipe.Read
+    //Make the call. OAuth2.read() will be called by Pipe.Read
     pipe.pipes.cal.read({
         success:function( response ) {
             ....
@@ -4309,7 +4307,7 @@ AeroGear.Notifier.adapters.SimplePush = function( clientName, settings ) {
             // Trigger registration success callback
             jQuery( navigator.push ).trigger( jQuery.Event( message.channelID + "-success", {
                 target: {
-                    result: channel.pushEndpoint
+                    result: channel
                 }
             }));
         } else if ( message.messageType === "register" ) {
@@ -4406,7 +4404,7 @@ AeroGear.Notifier.adapters.SimplePush = function( clientName, settings ) {
     };
 };
 
-// Public Methods
+//Public Methods
 /**
     Connect the client to the messaging service
     @param {Object} [options] - Options to pass to the connect method
@@ -4781,7 +4779,7 @@ AeroGear.Notifier.adapters.vertx = function( clientName, settings ) {
     }
 };
 
-// Public Methods
+//Public Methods
 /**
     Connect the client to the messaging service
     @param {Object} [options={}] - Options to pass to the connect method
@@ -4924,10 +4922,10 @@ AeroGear.Notifier.adapters.vertx.prototype.disconnect = function() {
         }
     });
 
-    // Subscribe to a channel
+    //Subscribe to a channel
     notifierVertx.clients.client1.subscribe( channelObject );
 
-    // Subscribe to multiple channels at once
+    //Subscribe to multiple channels at once
     notifierVertx.clients.client1.subscribe([
         {
             address: "newChannel",
@@ -4939,7 +4937,7 @@ AeroGear.Notifier.adapters.vertx.prototype.disconnect = function() {
         }
     ]);
 
-    // Subscribe to a channel, but first unsubscribe from all currently subscribed channels by adding the reset parameter
+    //Subscribe to a channel, but first unsubscribe from all currently subscribed channels by adding the reset parameter
     notifierVertx.clients.client1.subscribe({
             address: "newChannel",
             callback: function(){ ... }
@@ -4961,7 +4959,7 @@ AeroGear.Notifier.adapters.vertx.prototype.subscribe = function( channels, reset
 
 /**
     Unsubscribe this client from a channel
-    @param {Object|Array} channels - a channel object or a set of channel objects to which this client nolonger wishes to subscribe. Each object should have a String address and an optional callback which needs to be the same as the callback passed to the subscribe method while subscribing the client to the channel.
+    @param {Object|Array} channels - a channel object or a set of channel objects to which this client nolonger wishes to subscribe
     @example
     // Unsubscribe from a previously subscribed channel
     notifierVertx.clients.client1.unsubscribe(
@@ -4986,13 +4984,12 @@ AeroGear.Notifier.adapters.vertx.prototype.subscribe = function( channels, reset
 
  */
 AeroGear.Notifier.adapters.vertx.prototype.unsubscribe = function( channels ) {
-    var bus = this.getBus(),
-        thisChannels = this.getChannels();
+    var bus = this.getBus();
 
     channels = AeroGear.isArray( channels ) ? channels : [ channels ];
     for ( var i = 0; i < channels.length; i++ ) {
-        bus.unregisterHandler( channels[ i ].address, channels[ i ].callback || thisChannels[ this.getChannelIndex( channels[ i ].address ) ].callback );
         this.removeChannel( channels[ i ] );
+        bus.unregisterHandler( channels[ i ].address, channels[ i ].callback );
     }
 };
 
@@ -5203,7 +5200,7 @@ AeroGear.Notifier.adapters.stompws = function( clientName, settings ) {
     }
 };
 
-// Public Methods
+//Public Methods
 /**
     Connect the client to the messaging service
     @param {Object} [options={}] - Options to pass to the connect method
@@ -5348,7 +5345,7 @@ AeroGear.Notifier.adapters.stompws.prototype.disconnect = function( onDisconnect
         callback: function(){ ... }
     });
 
-    // Subscribe to multiple channels
+    //Subscribe to multiple channels
     notifier.clients.client2.subscribe([
         {
             address: "channelAddress1",
@@ -5415,7 +5412,7 @@ AeroGear.Notifier.adapters.stompws.prototype.debug = function( onData ) {
         callback: function(){ ... }
     });
 
-    // Unsubscribe from multiple channels
+    //Unsubscribe from multiple channels
     notifier.clients.client2.unsubscribe([
         {
             address: "channelAddress1",
@@ -5479,7 +5476,7 @@ AeroGear.Notifier.adapters.stompws.prototype.send = function( channel, message )
         @param {String} pushServerURL - the location of the UnifiedPush server
         @returns {Object} The created unified push server client
         @example
-        // Create the UnifiedPush client object:
+        //Create the UnifiedPush client object:
         var client = AeroGear.UnifiedPushClient(
             "myVariantID",
             "myVariantSecret",
@@ -5600,7 +5597,7 @@ AeroGear.Notifier.adapters.stompws.prototype.send = function( channel, message )
         @param {Function} options.onClose - a callback to fire when a connection to the SimplePush server is closed or lost.
         @returns {Object} The created unified push server client
         @example
-        // Create the SimplePushClient object:
+        //Create the SimplePushClient object:
         var client = AeroGear.SimplePushClient({
             simplePushServerURL: "https://localhost:7777/simplepush",
             onConnect: myConnectCallback,
@@ -5823,7 +5820,7 @@ AeroGear.Crypto = function() {
         @status Experimental
         @return {Number} - the random value
         @example
-        // Random number generator:
+        //Random number generator:
         AeroGear.Crypto().getRandomValue();
     */
     this.getRandomValue = function() {
@@ -5839,7 +5836,7 @@ AeroGear.Crypto = function() {
         @param {Number} providedSalt - salt provided to recreate the key
         @return {bitArray} - the derived key
         @example
-        // Password encryption:
+        //Password encryption:
         AeroGear.Crypto().deriveKey( 'mypassword', 42 );
      */
     this.deriveKey = function( password, providedSalt ) {
@@ -5858,7 +5855,7 @@ AeroGear.Crypto = function() {
             plainText (data to be encrypted)
         @return {bitArray} - The encrypted data represented by an array of bytes
         @example
-        // Data encryption:
+        //Data encryption:
         var options = {
             IV: myIV,
             AAD: myAAD,
@@ -5889,7 +5886,7 @@ AeroGear.Crypto = function() {
             ciphertext (data to be decrypted)
         @return {bitArray} - The decrypted data
         @example
-        // Data decryption:
+        //Data decryption:
         var options = {
             IV: myIV,
             AAD: myAAD,
@@ -5912,7 +5909,7 @@ AeroGear.Crypto = function() {
         @param {bitArray|String} data to hash.
         @return {bitArray} - Hash value
         @example
-        // Data hashing:
+        //Data hashing:
         AeroGear.Crypto().hash( options );
      */
     this.hash = function( data ) {
@@ -5927,7 +5924,7 @@ AeroGear.Crypto = function() {
             message (message to be signed)
         @return {bitArray} - Digital signature
         @example
-        // Message sign:
+        //Message sign:
         var options = {
             keys: providedKey,
             message: PLAIN_TEXT
@@ -5949,7 +5946,7 @@ AeroGear.Crypto = function() {
             message (message to be verified), signature (Digital signature)
         @return {bitArray} - Signature
         @example
-        // Message validation
+        //Message validation
         var options = {
             keys: sjcl.ecc.ecdsa.generateKeys(192),
             signature: signatureToBeVerified
@@ -5981,7 +5978,7 @@ AeroGear.Crypto = function() {
             publicKey = pubKey;
         } else {
             keys = sjcl.ecc.elGamal.generateKeys( 192,0 );
-            // kem - key encapsulation mechanism
+            //kem - key encapsulation mechanism
             pub = keys.pub.kem();
             publicKey = pub.key;
             privateKey = keys.sec.unkem( pub.tag );
