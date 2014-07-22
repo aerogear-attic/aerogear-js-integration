@@ -39,18 +39,17 @@ asyncTest( "Subscribe to a channel and receive notifications", function() {
                     ok( true, "Mail endpoint registered" );
 
                     mailEndpoint = event.target.result;
-
                     // Delay to make sure message handler is set up
                     $.ajax({
                         url: "http://localhost:8888/tests/simplepush/sender",
                         type: "POST",
-                        data: { version: 2, pushEndpoint: mailEndpoint.pushEndpoint },
+                        data: { version: 2, pushEndpoint: mailEndpoint },
                         success: function() {
                             setTimeout(function() {
                                 $.ajax({
                                     url: "http://localhost:8888/tests/simplepush/sender",
                                     type: "POST",
-                                    data: { version: 3, pushEndpoint: mailEndpoint.pushEndpoint }
+                                    data: { version: 3, pushEndpoint: mailEndpoint }
                                 });
                             }, 100);
                         }
@@ -58,10 +57,8 @@ asyncTest( "Subscribe to a channel and receive notifications", function() {
                 };
 
                 navigator.setMessageHandler( "push", function( message ) {
-                    if ( message.channelID === mailEndpoint.channelID ) {
-                        ok( ver === message.version, "Message received" );
-                        ver++;
-                    }
+                    ok( ver === message.version, "Message received" );
+                    ver++;
                 });
 
                 setTimeout(function() {
