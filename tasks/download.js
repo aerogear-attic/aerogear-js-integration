@@ -3,29 +3,13 @@ var path = require('path');
 var url = require('url');
 var util = require('util');
 var fs = require('fs');
-var mkdirp = require('mkdirp');
 var crypto = require('crypto');
-var Promise = require('promise');
+var Promise = require('../scripts/promisify-streams.js');
+var mkdirp = Promise.denodeify(require('mkdirp'));
 var request = require('request');
 var _ = require('lodash');
 
 module.exports = function ( grunt ) {
-
-    //grunt.registerTask( 'initLocalConfig',function(){
-    //    if(!grunt.file.exists('./local-config.json')){
-    //        var parentDir = path.resolve(process.cwd(), '.');
-    //        var sampleContent = {
-    //            home: parentDir,
-    //            jbossweb: "<PATH TO YOUR JBOSS/WILDFLY DIRECTORY>/standalone/deployments/ag-push.war"
-    //        }
-    //        grunt.file.write('./local-config.json',JSON.stringify(sampleContent,null,'\t'));
-    //        grunt.fatal('please update local-config.json with the path to your application server');
-    //    }
-    //    var config = grunt.config.getRaw();
-    //    config.local = grunt.file.readJSON('./local-config.json');
-    //
-    //    verifyJBosswebDirectory(config.local.jbossweb);
-    //});
 
     /**
      * options: {
@@ -82,10 +66,10 @@ module.exports = function ( grunt ) {
                                 return md5sum( downloadDest );
                             })
                             .then( function( actualChecksum ) {
-                                var expectedChecksum = grunt.file.read(checksumDest);
-                                grunt.log.debug( 'Expected checksum: ' + expectedChecksum );
-                                grunt.log.debug( 'Actual checksum: ' + actualChecksum );
-                                return actualChecksum === expectedChecksum;
+                                var expectedChecksum = fs.readFileSync(checksumDest);
+                                grunt.log.debug( 'Expected checksum: "' + expectedChecksum + '"');
+                                grunt.log.debug( 'Actual checksum:   "' + actualChecksum + '"' );
+                                return actualChecksum == expectedChecksum;
                             });
                     } else {
                         // we can't check checksum, so be optimistic and say the existing archive is just fine
@@ -115,58 +99,35 @@ module.exports = function ( grunt ) {
                         return;
                     }
                 });
-        }
+        };
 
         resolveArchive()
             .then( done )
             .catch( function( err ) {
-                grunt.log.error( err );
+                grunt.fail.fatal( err );
             });
     });
 
     function download( src, dest ) {
-        return new Promise( function ( resolve, reject ) {
-            grunt.log.debug( 'Downloading ' + src + ' to ' + dest );
-            mkdirp( path.dirname( dest ), function( err ) {
-                if ( err ) {
-                    reject( err );
-                } else {
-                    var req = request( src );
-                    req.pipe( fs.createWriteStream( dest ) );
-                    req.on('end', function() {
-                        resolve();
-                    });
-                    req.on('error', function( err ) {
-                        reject( err );
-                    });
-                }
+        grunt.log.debug('Downloading ' + src + ' to ' + dest);
+        return mkdirp( path.dirname(dest) )
+            .then(function () {
+                var req = request(src);
+                req.pipe( fs.createWriteStream( dest ) );
+                return Promise.promisifyStream( req );
             });
-        });
     }
 
     function md5sum( src ) {
-        return new Promise( function( resolve, reject ) {
-            grunt.log.debug('Computing md5sum for ' + src );
-            try {
-                var hash = crypto.createHash('md5'),
-                    stream = fs.createReadStream(src);
-
-                stream.on('data', function (data) {
-                    hash.update(data);
-                });
-
-                stream.on('end', function () {
-                    resolve(hash.digest('hex'));
-                });
-
-                stream.on('error', function( err ) {
-                    reject( err );
-                });
-            } catch ( err ) {
-                reject ( err );
-            }
-        });
+        var hash = crypto.createHash('md5'),
+            stream = fs.createReadStream(src);
+        grunt.log.debug('Computing md5sum for ' + src );
+        return Promise.promisifyStream( stream )
+            .data( function( data ) {
+                hash.update(data);
+            })
+            .then( function() {
+                return hash.digest('hex');
+            });
     }
-
-
 };

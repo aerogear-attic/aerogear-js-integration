@@ -6,6 +6,10 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
 
+        version: {
+            activemq: '5.8.0'
+        },
+
         connect: {
             server: {
                 options: {
@@ -50,6 +54,15 @@ module.exports = function(grunt) {
                     jshintrc: ".jshintrc"
                 }
             }
+        },
+        download: {
+            options: {
+                runtimeDir: './runtimes'
+            },
+            activemq: {
+                src: 'http://archive.apache.org/dist/activemq/apache-activemq/<%= version.activemq %>/apache-activemq-<%= version.activemq %>-bin.zip',
+                checksum: 'md5'
+            }
         }
     });
 
@@ -57,6 +70,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadTasks('tasks');
 
     // Default task
     grunt.registerTask('integration-vertx', ['connect', 'jshint', 'qunit:vertx']);
