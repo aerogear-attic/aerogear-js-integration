@@ -57,11 +57,13 @@ module.exports = function(grunt) {
         },
         download: {
             options: {
-                runtimeDir: './runtimes'
+                downloadDir: './runtimes',
+                tmpDir: './.tmp'
             },
             activemq: {
                 src: 'http://archive.apache.org/dist/activemq/apache-activemq/<%= version.activemq %>/apache-activemq-<%= version.activemq %>-bin.zip',
-                checksum: 'md5'
+                checksum: 'md5',
+                dest: './runtimes/apache-activemq'
             }
         }
     });

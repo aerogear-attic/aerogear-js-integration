@@ -9,6 +9,9 @@ Promise.promisifyStream = function( stream ) {
         stream.on( 'end', function() {
             resolve();
         });
+        stream.on( 'close', function() {
+            resolve();
+        });
         stream.on( 'data', function( data ) {
             if ( fnData ) {
                 fnData( data );
