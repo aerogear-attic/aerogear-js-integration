@@ -7,7 +7,8 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON("package.json"),
 
         version: {
-            activemq: '5.8.0'
+            activemq: '5.8.0',
+            vertx: '2.1.2'
         },
 
         connect: {
@@ -64,8 +65,12 @@ module.exports = function(grunt) {
                 src: 'http://archive.apache.org/dist/activemq/apache-activemq/<%= version.activemq %>/apache-activemq-<%= version.activemq %>-bin.zip',
                 checksum: 'md5',
                 dest: './runtimes/apache-activemq'
+            },
+            vertx: {
+                src: 'http://dl.bintray.com/vertx/downloads/vert.x-<%= version.vertx %>.tar.gz',
+                checksum: 'sha1',
+                dest: './runtimes/vert.x'
             }
-
         },
         external_daemon: {
             activemq: {

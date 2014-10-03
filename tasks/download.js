@@ -5,6 +5,7 @@ var util = require('util');
 var fs = require('fs');
 var crypto = require('crypto');
 var unzip = require('unzip');
+var targz = require('tar.gz');
 var shell = require('shelljs');
 var Promise = require('../scripts/promisify-streams.js');
 var mkdirp = Promise.denodeify(require('mkdirp'));
@@ -50,13 +51,13 @@ module.exports = function ( grunt ) {
             if (/https?:\/\//.test(checksum)) {
                 checksumType = path.extname(checksum).substr(1).toLowerCase();
                 checksumSrc = checksum;
-            } else if (/^(md5)$/.test(checksum)) {
+            } else if (/^(md5|sha1)$/.test(checksum)) {
                 checksumType = checksum;
                 checksumSrc = downloadSrc + '.' + checksum;
             } else {
                 throw new Error('Unsupported checksum: ' + checksum);
             }
-            checksumDest = downloadDest + '.' + checksumType
+            checksumDest = downloadDest + '.' + checksumType;
         }
 
         grunt.log.debug( 'Download source: ' + downloadSrc );
@@ -64,13 +65,17 @@ module.exports = function ( grunt ) {
         grunt.log.debug( 'Download type: ' + downloadType );
         grunt.log.debug( 'Download destination: ' + downloadDest );
 
-        var checkMd5Sum = function() {
+        var validateChecksum = function() {
             return Promise.resolve()
                 .then( function() {
                     if (checksum) {
                         return download(checksumSrc, checksumDest)
                             .then(function() {
-                                return md5sum( downloadDest );
+                                switch ( checksumType ) {
+                                    case 'md5':     return computeChecksum( 'md5', downloadDest );
+                                    case 'sha1':    return computeChecksum( 'sha1', downloadDest );
+                                    default:        throw new Error('unsupported checksum type: ' + checksumType);
+                                }
                             })
                             .then( function( actualChecksum ) {
                                 var expectedChecksum = fs.readFileSync(checksumDest);
@@ -89,7 +94,7 @@ module.exports = function ( grunt ) {
             return Promise.resolve( grunt.file.exists(downloadDest))
                 .then( function( exists ) {
                     if ( exists ) {
-                        return checkMd5Sum();
+                        return validateChecksum();
                     } else {
                         return false;
                     }
@@ -107,8 +112,12 @@ module.exports = function ( grunt ) {
                 });
         };
 
-        var unzipRuntimeToTemporaryFolder = function() {
-            return unzipArchive( downloadDest, tmpDir );
+        var extractRuntimeToTemporaryFolder = function() {
+            switch ( downloadType ) {
+                case 'zip':     return unzipArchive( downloadDest, tmpDir );
+                case 'gz':      return untargzArchive( downloadDest, tmpDir );
+                default:        throw new Error('unsupported extraction target: ' + downloadType );
+            }
         };
 
         var findAndCheckExtractedRuntime = function() {
@@ -146,7 +155,7 @@ module.exports = function ( grunt ) {
             done();
         } else {
             resolveArchive()
-                .then( unzipRuntimeToTemporaryFolder )
+                .then( extractRuntimeToTemporaryFolder )
                 .then( findAndCheckExtractedRuntime )
                 .then( extractOverlay )
                 .then( moveExtractedRuntimeToDestination )
@@ -169,8 +178,8 @@ module.exports = function ( grunt ) {
             });
     }
 
-    function md5sum( src ) {
-        var hash = crypto.createHash('md5'),
+    function computeChecksum( type, src ) {
+        var hash = crypto.createHash( type ),
             stream = fs.createReadStream(src);
         grunt.log.debug('Computing md5sum for ' + src );
         return Promise.promisifyStream( stream )
@@ -188,6 +197,19 @@ module.exports = function ( grunt ) {
         var writeStream = unzip.Extract( { path: dest } );
         readStream.pipe( writeStream );
         return Promise.promisifyStream( writeStream );
+    }
+
+    function untargzArchive( src, dest ) {
+        grunt.log.debug('Extracting ' + src + ' to ' + dest);
+        return new Promise( function( resolve, reject ) {
+            new targz().extract( src, dest, function( err ) {
+                if ( err ) {
+                    reject( err );
+                    return;
+                }
+                resolve();
+            });
+        });
     }
 
     function temp( prefix, suffix ) {
