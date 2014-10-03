@@ -113,11 +113,7 @@ module.exports = function ( grunt ) {
         };
 
         var extractRuntimeToTemporaryFolder = function() {
-            switch ( downloadType ) {
-                case 'zip':     return unzipArchive( downloadDest, tmpDir );
-                case 'gz':      return untargzArchive( downloadDest, tmpDir );
-                default:        throw new Error('unsupported extraction target: ' + downloadType );
-            }
+            return extractArchive( downloadDest, tmpDir );
         };
 
         var findAndCheckExtractedRuntime = function() {
@@ -134,7 +130,7 @@ module.exports = function ( grunt ) {
         var extractOverlay = function() {
             if (overlay) {
                 grunt.log.debug( 'Installing runtime overlay ' + overlay );
-                return unzipArchive( overlay, runtimeExtracted );
+                return extractArchive( overlay, runtimeExtracted );
             }
         };
 
@@ -161,7 +157,8 @@ module.exports = function ( grunt ) {
                 .then( moveExtractedRuntimeToDestination )
                 .then( function() {
                     grunt.log.ok( 'The runtime successfully installed to ' + runtimeDest + '' );
-                } )
+                    done();
+                })
                 .catch( function( err ) {
                     grunt.fail.fatal( err );
                 });
@@ -191,8 +188,17 @@ module.exports = function ( grunt ) {
             });
     }
 
-    function unzipArchive( src, dest ) {
+    function extractArchive( src, dest ) {
         grunt.log.debug('Extracting ' + src + ' to ' + dest);
+        var type = path.extname( src ).substr(1).toLowerCase();
+        switch ( type ) {
+            case 'zip':     return unzipArchive( src, dest );
+            case 'gz':      return untargzArchive( src, dest );
+            default:        throw new Error('unsupported extraction target: ' + downloadType );
+        }
+    }
+
+    function unzipArchive( src, dest ) {
         var readStream = fs.createReadStream( src );
         var writeStream = unzip.Extract( { path: dest } );
         readStream.pipe( writeStream );
@@ -200,7 +206,6 @@ module.exports = function ( grunt ) {
     }
 
     function untargzArchive( src, dest ) {
-        grunt.log.debug('Extracting ' + src + ' to ' + dest);
         return new Promise( function( resolve, reject ) {
             new targz().extract( src, dest, function( err ) {
                 if ( err ) {

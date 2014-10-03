@@ -118,6 +118,18 @@ module.exports = function(grunt) {
                         'tests/notifier/vertx.js'
                     ]
                 }
+            },
+            activemq: {
+                options: {
+                    files: [
+                        'jquery-1.10.2.min.js',
+                        'tests/notifier/stomp.js',
+                        'tests/notifier/sockjs-0.3.4.js',
+                        'tests/notifier/vertxbus.js',
+                        'aerogear.js',
+                        'tests/notifier/stompws.js'
+                    ]
+                }
             }
         }
     });
@@ -132,8 +144,9 @@ module.exports = function(grunt) {
 
     // Default task
     grunt.registerTask('integration-vertx', ['jshint', 'karma:vertx']);
-    grunt.registerTask('integration-activemq', ['connect', 'jshint', 'qunit:activemq']);
+    grunt.registerTask('integration-activemq', ['jshint', 'karma:activemq']);
     grunt.registerTask('integration-simplepush', ['connect', 'jshint', 'qunit:simplepush']);
 
     grunt.registerTask('ci-vertx', ['download:vertx', 'external_daemon:vertx', 'integration-vertx', 'external_daemon:vertx:stop']);
+    grunt.registerTask('ci-activemq', ['download:activemq', 'external_daemon:activemq', 'integration-activemq', 'external_daemon:activemq:stop']);
 };
