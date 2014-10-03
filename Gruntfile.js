@@ -98,6 +98,27 @@ module.exports = function(grunt) {
                 cmd: './runtimes/vert.x/bin/vertx',
                 args: [ 'run', './servers/vertxbustest/server.js', '-conf', 'servers/vertxbustest/conf/config.json' ]
             }
+        },
+        karma: {
+            options: {
+                frameworks: ['qunit'],
+                browsers: ['PhantomJS'],
+                reporters: ['spec'],
+                singleRun: true,
+                logLevel: 'WARN'
+            },
+            vertx: {
+                options: {
+                    files: [
+                        'jquery-1.10.2.min.js',
+                        'tests/notifier/stomp.js',
+                        'tests/notifier/sockjs-0.3.4.js',
+                        'tests/notifier/vertxbus.js',
+                        'aerogear.js',
+                        'tests/notifier/vertx.js'
+                    ]
+                }
+            }
         }
     });
 
@@ -106,10 +127,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-external-daemon');
+    grunt.loadNpmTasks('grunt-karma');
     grunt.loadTasks('tasks');
 
     // Default task
-    grunt.registerTask('integration-vertx', ['connect', 'jshint', 'qunit:vertx']);
+    grunt.registerTask('integration-vertx', ['jshint', 'karma:vertx']);
     grunt.registerTask('integration-activemq', ['connect', 'jshint', 'qunit:activemq']);
     grunt.registerTask('integration-simplepush', ['connect', 'jshint', 'qunit:simplepush']);
 
