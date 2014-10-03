@@ -77,10 +77,10 @@ module.exports = function(grunt) {
                 options: {
                     logFile: 'runtimes/apache-activemq/data/activemq.log',
                     startCheck: function(stdout, stderr) {
-                        return /Apache ActiveMQ .* started/.test(stdout);
+                        return (/Apache ActiveMQ .* started/).test(stdout);
                     },
                     stopCheck: function(stdout, stderr) {
-                        return /FINISHED/.test(stdout);
+                        return (/FINISHED/).test(stdout);
                     },
                     startCheckTimeout: 15.0
                 },
@@ -92,7 +92,7 @@ module.exports = function(grunt) {
             vertx: {
                 options: {
                     startCheck: function(stdout, stderr) {
-                        return /Vertx started/.test(stdout);
+                        return (/Vertx started/).test(stdout);
                     }
                 },
                 cmd: './runtimes/vert.x/bin/vertx',
@@ -112,4 +112,6 @@ module.exports = function(grunt) {
     grunt.registerTask('integration-vertx', ['connect', 'jshint', 'qunit:vertx']);
     grunt.registerTask('integration-activemq', ['connect', 'jshint', 'qunit:activemq']);
     grunt.registerTask('integration-simplepush', ['connect', 'jshint', 'qunit:simplepush']);
+
+    grunt.registerTask('ci-vertx', ['download:vertx', 'external_daemon:vertx', 'integration-vertx', 'external_daemon:vertx:stop']);
 };
