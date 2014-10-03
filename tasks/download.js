@@ -131,7 +131,7 @@ module.exports = function ( grunt ) {
 
         var moveExtractedRuntimeToDestination = function() {
             grunt.log.debug( 'Moving runtime to destination ' + runtimeDest);
-            return mkdirp( runtimeDest )
+            return mkdirp( path.dirname( runtimeDest ))
                 .then(function() {
                     shell.mv( runtimeExtracted, runtimeDest);
                     if ( tmpDir ) {

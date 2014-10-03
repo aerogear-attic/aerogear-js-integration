@@ -57,13 +57,41 @@ module.exports = function(grunt) {
         },
         download: {
             options: {
-                downloadDir: './runtimes',
+                downloadDir: './.tmp/downloads',
                 tmpDir: './.tmp'
             },
             activemq: {
                 src: 'http://archive.apache.org/dist/activemq/apache-activemq/<%= version.activemq %>/apache-activemq-<%= version.activemq %>-bin.zip',
                 checksum: 'md5',
                 dest: './runtimes/apache-activemq'
+            }
+
+        },
+        external_daemon: {
+            activemq: {
+                options: {
+                    logFile: 'runtimes/apache-activemq/data/activemq.log',
+                    startCheck: function(stdout, stderr) {
+                        return /Apache ActiveMQ .* started/.test(stdout);
+                    },
+                    stopCheck: function(stdout, stderr) {
+                        return /FINISHED/.test(stdout);
+                    },
+                    startCheckTimeout: 15.0
+                },
+                cmd: 'sh',
+                args: [ 'runtimes/apache-activemq/bin/activemq', 'start' ],
+                stopCmd: 'sh',
+                stopArgs: [ 'runtimes/apache-activemq/bin/activemq', 'stop' ]
+            },
+            vertx: {
+                options: {
+                    startCheck: function(stdout, stderr) {
+                        return /Vertx started/.test(stdout);
+                    }
+                },
+                cmd: './runtimes/vert.x/bin/vertx',
+                args: [ 'run', './servers/vertxbustest/server.js', '-conf', 'servers/vertxbustest/conf/config.json' ]
             }
         }
     });
@@ -72,6 +100,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-external-daemon');
     grunt.loadTasks('tasks');
 
     // Default task
