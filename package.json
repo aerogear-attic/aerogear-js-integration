@@ -48,7 +48,7 @@
     "promise": "^6.0.0",
     "request": "^2.44.0",
     "shelljs": "^0.3.0",
-    "tar.gz": "^0.1.1",
+    "tarball-extract": "0.0.3",
     "unzip": "^0.1.11"
   }
 }

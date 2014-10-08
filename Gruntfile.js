@@ -79,6 +79,9 @@ module.exports = function(grunt) {
             }
         },
         daemon: {
+            options: {
+                startCheckTimeout: 15.0
+            },
             activemq: {
                 options: {
                     logFile: 'runtimes/activemq/data/activemq.log',
@@ -87,8 +90,7 @@ module.exports = function(grunt) {
                     },
                     stopCheck: function(stdout, stderr) {
                         return (/FINISHED/).test(stdout);
-                    },
-                    startCheckTimeout: 15.0
+                    }
                 },
                 cmd: 'sh',
                 args: [ 'runtimes/activemq/bin/activemq', 'start' ],

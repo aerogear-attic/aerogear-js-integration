@@ -5,7 +5,7 @@ var util = require('util');
 var fs = require('fs');
 var crypto = require('crypto');
 var unzip = require('unzip');
-var targz = require('tar.gz');
+var tarball = require('tarball-extract');
 var shell = require('shelljs');
 var Promise = require('../scripts/promisify-streams.js');
 var mkdirp = Promise.denodeify(require('mkdirp'));
@@ -218,7 +218,7 @@ module.exports = function ( grunt ) {
 
     function untargzArchive( src, dest ) {
         return new Promise( function( resolve, reject ) {
-            new targz().extract( src, dest, function( err ) {
+            new tarball.extractTarball( src, dest, function( err ) {
                 if ( err ) {
                     reject( err );
                     return;
