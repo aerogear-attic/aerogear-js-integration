@@ -8,7 +8,8 @@ module.exports = function(grunt) {
 
         version: {
             activemq: '5.8.0',
-            vertx: '2.1.2'
+            vertx: '2.1.2',
+            simplepushserver: '0.13.0-SNAPSHOT'
         },
 
         connect: {
@@ -71,6 +72,10 @@ module.exports = function(grunt) {
                 src: 'http://dl.bintray.com/vertx/downloads/vert.x-<%= version.vertx %>.tar.gz',
                 checksum: 'sha1',
                 dest: './runtimes/vert.x'
+            },
+            simplepush: {
+                src: 'https://github.com/lfryc/aerogear-simplepush-server/releases/download/<%= version.simplepushserver %>/aerogear-simplepush-server-standalone-<%= version.simplepushserver %>.jar',
+                dest: './runtimes/aerogear-simplepush-server-standalone.jar'
             }
         },
         daemon: {
@@ -98,6 +103,15 @@ module.exports = function(grunt) {
                 },
                 cmd: './runtimes/vert.x/bin/vertx',
                 args: [ 'run', './servers/vertxbustest/server.js', '-conf', 'servers/vertxbustest/conf/config.json' ]
+            },
+            simplepush: {
+                options: {
+                    startCheck: function(stdout, stderr) {
+                        return (/Server started/).test(stderr);
+                    }
+                },
+                cmd: 'java',
+                args: [ '-jar', './runtimes/aerogear-simplepush-server-standalone.jar' ]
             }
         },
         karma: {
@@ -131,6 +145,16 @@ module.exports = function(grunt) {
                         'tests/notifier/stompws.js'
                     ]
                 }
+            },
+            simplepush: {
+                options: {
+                    files: [
+                        'jquery-1.10.2.min.js',
+                        'tests/simplepush/sockjs-0.3.4.js',
+                        'aerogear.js',
+                        'tests/simplepush/simplepush.js'
+                    ]
+                }
             }
         }
     });
@@ -147,8 +171,9 @@ module.exports = function(grunt) {
     // Default task
     grunt.registerTask('integration-vertx', ['jshint', 'karma:vertx']);
     grunt.registerTask('integration-activemq', ['jshint', 'karma:activemq']);
-    grunt.registerTask('integration-simplepush', ['connect', 'jshint', 'qunit:simplepush']);
+    grunt.registerTask('integration-simplepush', ['connect', 'jshint', 'karma:simplepush']);
 
     grunt.registerTask('ci-vertx', ['download:vertx', 'daemon:vertx', 'integration-vertx', 'daemon:vertx:stop']);
     grunt.registerTask('ci-activemq', ['download:activemq', 'daemon:activemq', 'integration-activemq', 'daemon:activemq:stop']);
+    grunt.registerTask('ci-simplepush', ['download:simplepush', 'daemon:simplepush', 'integration-simplepush', 'daemon:simplepush:stop']);
 };

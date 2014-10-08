@@ -136,9 +136,8 @@ module.exports = function ( grunt ) {
 
         var moveExtractedRuntimeToDestination = function() {
             grunt.log.debug( 'Moving runtime to destination ' + runtimeDest);
-            return mkdirp( path.dirname( runtimeDest ))
+            return moveTo( runtimeExtracted, runtimeDest )
                 .then(function() {
-                    shell.mv( runtimeExtracted, runtimeDest);
                     if ( tmpDir ) {
                         grunt.log.debug( 'Cleaning temp directory: ' + tmpDir);
                         shell.rm( '-R', tmpDir );
@@ -194,6 +193,7 @@ module.exports = function ( grunt ) {
         switch ( type ) {
             case 'zip':     return unzipArchive( src, dest );
             case 'gz':      return untargzArchive( src, dest );
+            case 'jar':     return copyTo( src, dest );
             default:        throw new Error('unsupported extraction target: ' + downloadType );
         }
     }
@@ -215,6 +215,20 @@ module.exports = function ( grunt ) {
                 resolve();
             });
         });
+    }
+
+    function moveTo( src, dest ) {
+        return mkdirp( path.dirname( dest ))
+            .then(function() {
+                shell.mv( src, dest );
+            });
+    }
+
+    function copyTo( src, dest ) {
+        return mkdirp( path.dirname( dest ))
+            .then(function() {
+                shell.cp( src, dest );
+            });
     }
 
     function temp( prefix, suffix ) {
