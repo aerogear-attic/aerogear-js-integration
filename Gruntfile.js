@@ -64,7 +64,8 @@ module.exports = function(grunt) {
             activemq: {
                 src: 'http://archive.apache.org/dist/activemq/apache-activemq/<%= version.activemq %>/apache-activemq-<%= version.activemq %>-bin.zip',
                 checksum: 'md5',
-                dest: './runtimes/apache-activemq'
+                dest: './runtimes/activemq',
+                overlay: './servers/activemqtest/conf.tar.gz'
             },
             vertx: {
                 src: 'http://dl.bintray.com/vertx/downloads/vert.x-<%= version.vertx %>.tar.gz',
@@ -72,10 +73,10 @@ module.exports = function(grunt) {
                 dest: './runtimes/vert.x'
             }
         },
-        external_daemon: {
+        daemon: {
             activemq: {
                 options: {
-                    logFile: 'runtimes/apache-activemq/data/activemq.log',
+                    logFile: 'runtimes/activemq/data/activemq.log',
                     startCheck: function(stdout, stderr) {
                         return (/Apache ActiveMQ .* started/).test(stdout);
                     },
@@ -85,9 +86,9 @@ module.exports = function(grunt) {
                     startCheckTimeout: 15.0
                 },
                 cmd: 'sh',
-                args: [ 'runtimes/apache-activemq/bin/activemq', 'start' ],
+                args: [ 'runtimes/activemq/bin/activemq', 'start' ],
                 stopCmd: 'sh',
-                stopArgs: [ 'runtimes/apache-activemq/bin/activemq', 'stop' ]
+                stopArgs: [ 'runtimes/activemq/bin/activemq', 'stop' ]
             },
             vertx: {
                 options: {
@@ -141,12 +142,13 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-external-daemon');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadTasks('tasks');
+    grunt.renameTask('external_daemon', 'daemon');
 
     // Default task
     grunt.registerTask('integration-vertx', ['jshint', 'karma:vertx']);
     grunt.registerTask('integration-activemq', ['jshint', 'karma:activemq']);
     grunt.registerTask('integration-simplepush', ['connect', 'jshint', 'qunit:simplepush']);
 
-    grunt.registerTask('ci-vertx', ['download:vertx', 'external_daemon:vertx', 'integration-vertx', 'external_daemon:vertx:stop']);
-    grunt.registerTask('ci-activemq', ['download:activemq', 'external_daemon:activemq', 'integration-activemq', 'external_daemon:activemq:stop']);
+    grunt.registerTask('ci-vertx', ['download:vertx', 'daemon:vertx', 'integration-vertx', 'daemon:vertx:stop']);
+    grunt.registerTask('ci-activemq', ['download:activemq', 'daemon:activemq', 'integration-activemq', 'daemon:activemq:stop']);
 };
