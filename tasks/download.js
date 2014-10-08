@@ -101,6 +101,7 @@ module.exports = function ( grunt ) {
                 })
                 .then( function( existsAndChecksumMatches ) {
                     if ( !existsAndChecksumMatches ) {
+                        grunt.log.ok( 'Downloading runtime ' + downloadSrc );
                         return download( downloadSrc, downloadDest )
                             .catch( function( err ) {
                                 grunt.log.error( err );
@@ -165,12 +166,22 @@ module.exports = function ( grunt ) {
     });
 
     function download( src, dest ) {
-        grunt.log.debug('Downloading ' + src + ' to ' + dest);
+        grunt.log.debug( 'Downloading ' + src + ' to ' + dest );
+        // write dots to show some progress...
+        var interval = setInterval(function() {
+            process.stdout.write(".");
+        }, 2000);
+        var clear = function() {
+            clearInterval(interval);
+            process.stdout.write("\n");
+        };
         return mkdirp( path.dirname(dest) )
             .then(function () {
                 var req = request(src);
                 req.pipe( fs.createWriteStream( dest ) );
-                return Promise.promisifyStream( req );
+                return Promise.promisifyStream( req )
+                    .then( clear )
+                    .catch( clear );
             });
     }
 
