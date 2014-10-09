@@ -12,43 +12,6 @@ module.exports = function(grunt) {
             simplepushserver: '0.13.0-SNAPSHOT'
         },
 
-        connect: {
-            server: {
-                options: {
-                    port: 8000,
-                    hostname: 'localhost'
-                }
-            }
-        },
-        qunit: {
-            vertx: {
-                files: [],
-                options: {
-                    urls: [
-                        'http://localhost:<%= connect.server.options.port %>/tests/notifier/vertx.html'
-                    ],
-                    "--web-security": false
-                }
-            },
-            activemq: {
-                files: [],
-                options: {
-                    urls: [
-                        'http://localhost:<%= connect.server.options.port %>/tests/notifier/stompws.html'
-                    ],
-                    "--web-security": false
-                }
-            },
-            simplepush: {
-                files: [],
-                options: {
-                    urls: [
-                        'http://localhost:<%= connect.server.options.port %>/tests/simplepush/simplepush.html'
-                    ],
-                    "--web-security": false
-                }
-            }
-        },
         jshint: {
             all: {
                 src: [ "Gruntfile.js", "src/**/*.js" ],
@@ -163,12 +126,10 @@ module.exports = function(grunt) {
 
     // grunt-contrib tasks
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-qunit');
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-external-daemon');
     grunt.loadNpmTasks('grunt-karma');
-    grunt.loadTasks('tasks');
+    grunt.loadNpmTasks('grunt-external-daemon');
     grunt.renameTask('external_daemon', 'daemon');
+    grunt.loadTasks('tasks');
 
     // Default task
     grunt.registerTask('integration-vertx', ['jshint', 'karma:vertx']);
