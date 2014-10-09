@@ -14,7 +14,7 @@ module.exports = function(grunt) {
 
         jshint: {
             all: {
-                src: [ "Gruntfile.js", "src/**/*.js" ],
+                src: [ "Gruntfile.js", "src/**/*.js", "tasks/**/*.js", "scripts/**/*.js" ],
                 options: {
                     jshintrc: ".jshintrc"
                 }
@@ -132,13 +132,13 @@ module.exports = function(grunt) {
     grunt.loadTasks('tasks');
 
     // Default task
-    grunt.registerTask('integration-vertx', ['jshint', 'karma:vertx']);
-    grunt.registerTask('integration-activemq', ['jshint', 'karma:activemq']);
-    grunt.registerTask('integration-simplepush', ['jshint', 'karma:simplepush']);
+    grunt.registerTask('integration-vertx', ['karma:vertx']);
+    grunt.registerTask('integration-activemq', ['karma:activemq']);
+    grunt.registerTask('integration-simplepush', ['karma:simplepush']);
 
     grunt.registerTask('ci-vertx', ['download:vertx', 'daemon:vertx', 'integration-vertx', 'daemon:vertx:stop']);
     grunt.registerTask('ci-activemq', ['download:activemq', 'daemon:activemq', 'integration-activemq', 'daemon:activemq:stop']);
     grunt.registerTask('ci-simplepush', ['download:simplepush', 'daemon:simplepush', 'integration-simplepush', 'daemon:simplepush:stop']);
 
-    grunt.registerTask('travis', [ 'ci-vertx', 'ci-activemq', 'ci-simplepush' ]);
+    grunt.registerTask('ci-all', [ 'jshint', 'ci-vertx', 'ci-activemq', 'ci-simplepush' ]);
 };

@@ -81,7 +81,7 @@ module.exports = function ( grunt ) {
                                 var expectedChecksum = fs.readFileSync(checksumDest);
                                 grunt.log.debug( 'Expected checksum: "' + expectedChecksum + '"');
                                 grunt.log.debug( 'Actual checksum:   "' + actualChecksum + '"' );
-                                return actualChecksum == expectedChecksum;
+                                return actualChecksum === expectedChecksum;
                             });
                     } else {
                         // we can't check checksum, so be optimistic and say the existing archive is just fine
@@ -205,7 +205,7 @@ module.exports = function ( grunt ) {
             case 'zip':     return unzipArchive( src, dest );
             case 'gz':      return untargzArchive( src, dest );
             case 'jar':     return copyTo( src, dest );
-            default:        throw new Error('unsupported extraction target: ' + downloadType );
+            default:        throw new Error('unsupported extraction target: ' + type );
         }
     }
 

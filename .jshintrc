@@ -13,6 +13,9 @@
         "require": true,
         "vertx": true,
         "SockJS": true,
-        "Stomp": true
+        "Stomp": true,
+        "Promise": true,
+        "process": true,
+        "module": true
     }
 }
