@@ -20,6 +20,11 @@ module.exports = function(grunt) {
                 }
             }
         },
+        clean: {
+            vertx: ['results/vertx-results.xml'],
+            activemq: ['results/activemq-results.xml'],
+            simplepush: ['results/simplepush-results.xml']
+        },
         download: {
             options: {
                 downloadDir: './.tmp/downloads',
@@ -83,9 +88,12 @@ module.exports = function(grunt) {
             options: {
                 frameworks: ['qunit'],
                 browsers: ['PhantomJS'],
-                reporters: ['spec'],
+                reporters: ['spec', 'junit'],
                 singleRun: true,
-                logLevel: 'WARN'
+                logLevel: 'WARN',
+                junitReporter: {
+                    outputFile: 'test-results.xml'
+                }
             },
             vertx: {
                 options: {
@@ -96,7 +104,10 @@ module.exports = function(grunt) {
                         'tests/notifier/vertxbus.js',
                         'aerogear.js',
                         'tests/notifier/vertx.js'
-                    ]
+                    ],
+                    junitReporter: {
+                        outputFile: 'results/vertx-results.xml'
+                    }
                 }
             },
             activemq: {
@@ -108,7 +119,10 @@ module.exports = function(grunt) {
                         'tests/notifier/vertxbus.js',
                         'aerogear.js',
                         'tests/notifier/stompws.js'
-                    ]
+                    ],
+                    junitReporter: {
+                        outputFile: 'results/activemq-results.xml'
+                    }
                 }
             },
             simplepush: {
@@ -118,13 +132,17 @@ module.exports = function(grunt) {
                         'tests/simplepush/sockjs-0.3.4.js',
                         'aerogear.js',
                         'tests/simplepush/simplepush.js'
-                    ]
+                    ],
+                    junitReporter: {
+                        outputFile: 'results/simplepush-results.xml'
+                    }
                 }
             }
         }
     });
 
     // grunt-contrib tasks
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-external-daemon');
@@ -136,9 +154,16 @@ module.exports = function(grunt) {
     grunt.registerTask('integration-activemq', ['karma:activemq']);
     grunt.registerTask('integration-simplepush', ['karma:simplepush']);
 
-    grunt.registerTask('ci-vertx', ['download:vertx', 'daemon:vertx', 'integration-vertx', 'daemon:vertx:stop']);
-    grunt.registerTask('ci-activemq', ['download:activemq', 'daemon:activemq', 'integration-activemq', 'daemon:activemq:stop']);
-    grunt.registerTask('ci-simplepush', ['download:simplepush', 'daemon:simplepush', 'integration-simplepush', 'daemon:simplepush:stop']);
+    grunt.registerTask('ci-vertx', ['download:vertx', 'clean:vertx', 'daemon:vertx', 'integration-vertx', 'daemon:vertx:stop']);
+    grunt.registerTask('ci-activemq', ['download:activemq', 'clean:activemq', 'daemon:activemq', 'integration-activemq', 'daemon:activemq:stop']);
+    grunt.registerTask('ci-simplepush', ['download:simplepush', 'clean:simplepush', 'daemon:simplepush', 'integration-simplepush', 'daemon:simplepush:stop']);
 
-    grunt.registerTask('ci-all', [ 'jshint', 'ci-vertx', 'ci-activemq', 'ci-simplepush' ]);
+    grunt.registerTask('ci-all', [
+        'clean',
+        'jshint',
+        'force:ci-vertx',
+        'force:ci-activemq',
+        'force:ci-simplepush',
+        'ci-report'
+    ]);
 };

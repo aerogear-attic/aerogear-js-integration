@@ -16,6 +16,7 @@
         "Stomp": true,
         "Promise": true,
         "process": true,
-        "module": true
+        "module": true,
+        "console": true
     }
 }
