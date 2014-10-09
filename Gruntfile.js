@@ -150,13 +150,13 @@ module.exports = function(grunt) {
     grunt.loadTasks('tasks');
 
     // Default task
-    grunt.registerTask('integration-vertx', ['karma:vertx']);
-    grunt.registerTask('integration-activemq', ['karma:activemq']);
-    grunt.registerTask('integration-simplepush', ['karma:simplepush']);
+    grunt.registerTask('test-vertx', ['karma:vertx']);
+    grunt.registerTask('test-activemq', ['karma:activemq']);
+    grunt.registerTask('test-simplepush', ['karma:simplepush']);
 
-    grunt.registerTask('ci-vertx', ['download:vertx', 'clean:vertx', 'daemon:vertx', 'integration-vertx', 'daemon:vertx:stop']);
-    grunt.registerTask('ci-activemq', ['download:activemq', 'clean:activemq', 'daemon:activemq', 'integration-activemq', 'daemon:activemq:stop']);
-    grunt.registerTask('ci-simplepush', ['download:simplepush', 'clean:simplepush', 'daemon:simplepush', 'integration-simplepush', 'daemon:simplepush:stop']);
+    grunt.registerTask('ci-vertx', ['download:vertx', 'clean:vertx', 'daemon:vertx', 'test-vertx', 'daemon:vertx:stop']);
+    grunt.registerTask('ci-activemq', ['download:activemq', 'clean:activemq', 'daemon:activemq', 'test-activemq', 'daemon:activemq:stop']);
+    grunt.registerTask('ci-simplepush', ['download:simplepush', 'clean:simplepush', 'daemon:simplepush', 'test-simplepush', 'daemon:simplepush:stop']);
 
     grunt.registerTask('ci-all', [
         'clean',
