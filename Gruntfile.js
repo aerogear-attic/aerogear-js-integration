@@ -82,17 +82,36 @@ module.exports = function(grunt) {
                 },
                 cmd: 'java',
                 args: [ '-jar', './runtimes/aerogear-simplepush-server-standalone.jar' ]
+            },
+            simplepushRelay: {
+                options: {
+                    startCheck: function(stdout, stderr) {
+                        return (/Push Relay Server Listening on port 8888/).test(stdout);
+                    }
+                },
+                cmd: 'node',
+                args: [ './servers/simplepush/pushRelayServer.js' ]
             }
         },
         karma: {
             options: {
                 frameworks: ['qunit'],
-                browsers: ['PhantomJS'],
+                browsers: ['PhantomJS_noSecurity'],
                 reporters: ['spec', 'junit'],
                 singleRun: true,
                 logLevel: 'WARN',
                 junitReporter: {
                     outputFile: 'test-results.xml'
+                },
+                customLaunchers: {
+                    'PhantomJS_noSecurity': {
+                        base: 'PhantomJS',
+                        options: {
+                            settings: {
+                                webSecurityEnabled: false
+                            }
+                        }
+                    }
                 }
             },
             vertx: {
@@ -156,7 +175,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('ci-vertx', ['download:vertx', 'clean:vertx', 'daemon:vertx', 'test-vertx', 'daemon:vertx:stop']);
     grunt.registerTask('ci-activemq', ['download:activemq', 'clean:activemq', 'daemon:activemq', 'test-activemq', 'daemon:activemq:stop']);
-    grunt.registerTask('ci-simplepush', ['download:simplepush', 'clean:simplepush', 'daemon:simplepush', 'test-simplepush', 'daemon:simplepush:stop']);
+    grunt.registerTask('ci-simplepush', ['download:simplepush', 'clean:simplepush', 'daemon:simplepush', 'daemon:simplepushRelay', 'test-simplepush', 'daemon:simplepushRelay:stop', 'daemon:simplepush:stop']);
 
     grunt.registerTask('ci-all', [
         'clean',

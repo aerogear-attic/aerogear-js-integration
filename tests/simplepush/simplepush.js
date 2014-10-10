@@ -34,6 +34,7 @@ asyncTest( "Subscribe to a channel and receive notifications", function() {
         SPClient = AeroGear.SimplePushClient({
             simplePushServerURL: "http://localhost:7777/simplepush",
             onConnect: function() {
+
                 var mailRequest = navigator.push.register();
                 mailRequest.onsuccess = function( event ) {
                     ok( true, "Mail endpoint registered" );
@@ -44,29 +45,36 @@ asyncTest( "Subscribe to a channel and receive notifications", function() {
                     $.ajax({
                         url: "http://localhost:8888/tests/simplepush/sender",
                         type: "POST",
-                        data: { version: 2, pushEndpoint: mailEndpoint.pushEndpoint },
+                        data: { version: 2, pushEndpoint: mailEndpoint },
                         success: function() {
                             setTimeout(function() {
                                 $.ajax({
                                     url: "http://localhost:8888/tests/simplepush/sender",
                                     type: "POST",
-                                    data: { version: 3, pushEndpoint: mailEndpoint.pushEndpoint }
+                                    data: { version: 3, pushEndpoint: mailEndpoint }
                                 });
                             }, 100);
                         }
                     });
                 };
+                mailRequest.onerror = function( err ) {
+                    fail( err );
+                    start();
+                };
 
                 navigator.setMessageHandler( "push", function( message ) {
-                    if ( message.channelID === mailEndpoint.channelID ) {
+                    if ( message.pushEndpoint === mailEndpoint ) {
                         ok( ver === message.version, "Message received" );
                         ver++;
+                        if (ver == 4) {
+                            SPClient.simpleNotifier.disconnect();
+                        }
                     }
                 });
 
                 setTimeout(function() {
                     SPClient.simpleNotifier.disconnect();
-                }, 3000);
+                }, 5000);
             },
             onClose: function() {
                 localStorage.removeItem("ag-push-store");
