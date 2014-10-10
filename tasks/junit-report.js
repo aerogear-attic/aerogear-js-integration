@@ -5,6 +5,9 @@ var xmlToJson = Promise.denodeify( require('xml2js').parseString );
 var colors = require('colors/safe');
 
 module.exports = function ( grunt ) {
+
+    // collect results stored in xml reports and prints aggregated result to console;
+    // in case of failure, it fails the execution
     grunt.registerTask('ci-report', function () {
         var done = this.async();
         var parseResults = [];
@@ -30,7 +33,7 @@ module.exports = function ( grunt ) {
 
                 if ( !failures && !errors ) {
                     console.log();
-                    console.log( colors.green('    ✓ ALL TESTS PASSED'));
+                    console.log( colors.green('    ✓ ALL ' + tests + ' TESTS PASSED'));
                     console.log();
                 } else {
                     console.log();

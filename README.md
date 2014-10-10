@@ -4,7 +4,7 @@
 
 ## Running All Tests
 
-    grunt-ci
+    grunt ci-all
 
 ## Running Tests Specific for Single Runtime
 

@@ -1,4 +1,3 @@
-//var exec = require('child_process').exec;
 var path = require('path');
 var url = require('url');
 var util = require('util');
@@ -14,25 +13,14 @@ var _ = require('lodash');
 
 module.exports = function ( grunt ) {
 
-    /**
-     * options: {
-     *   runtimeDir
-     * }
-     *
-     * data: {
-     *    src
-     *    checksum
-     * }
-     */
-
-    var defaultOptions = {
-        downloadDir: './.tmp/downloads/',
-        tmpDir: './.tmp/'
-    };
-
+    // checks presense of required runtime; if not present, it downloads it, checks consistency,
+    // unpack and install configuration overlay and finally move it to expected location
     grunt.registerMultiTask('download', 'Download build dependencies', function() {
         var done = this.async(),
-            options = _.merge( {}, defaultOptions, this.options() ),
+            options = this.options({
+                downloadDir: './.tmp/downloads/',
+                tmpDir: './.tmp/'
+            }),
             data = this.data,
             downloadSrc = data.src,
             downloadBasename = path.basename( downloadSrc ),
