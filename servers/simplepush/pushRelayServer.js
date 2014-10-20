@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var bodyParser = require('body-parser');
 var request = require('request');
 
 var allowCrossDomain = function(req, res, next) {
@@ -16,10 +17,8 @@ var allowCrossDomain = function(req, res, next) {
     }
 };
 
-app.configure(function () {
-    app.use(allowCrossDomain);
-    app.use(express.bodyParser());
-});
+app.use(allowCrossDomain);
+app.use(bodyParser());
 
 app.post('/tests/simplepush/sender', function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
