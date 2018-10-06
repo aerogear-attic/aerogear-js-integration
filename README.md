@@ -1,3 +1,6 @@
+## Deprecation Notice
+This repository has been deprecated and is not being maintained. If you have any questions, please get in touch with the collaborators.
+
 # aerogear-js-integration [![Build Status](https://travis-ci.org/aerogear/aerogear-js.png)](https://travis-ci.org/aerogear/aerogear-js) [![devDependency Status](https://david-dm.org/aerogear/aerogear-js-integration/dev-status.png)](https://david-dm.org/aerogear/aerogear-js-integration#info=devDependencies) #
 
 > Integration tests for AeroGear JavaScript Library
